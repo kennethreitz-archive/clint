@@ -27,6 +27,8 @@ DISABLE_COLOR = False
 
 if not sys.stdout.isatty():
     DISABLE_COLOR = True
+else:
+    colorama.init(autoreset=True)
 
 
 class ColoredString(object):
