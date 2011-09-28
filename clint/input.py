@@ -26,9 +26,9 @@ clint.choose('Enter your gender', **options)
 
 """
 def choose(prompt, **options):
-    input = raw_input(prompt + ' ' + str([x for x in options]).replace(', ', '/').replace('\'', '') + ':')
+    input = raw_input(prompt + ' ' + str([x for x in options]).replace(', ', '/').replace('\'', '') + ':').strip()
     keys = options.keys()
-    for x in range(0, len(keys)):
+    for x in xrange(0, len(keys)):
         if input.lower() == keys[x]:
             options[keys[x]]()
             break
@@ -39,6 +39,6 @@ This function is for standard y/n input. If y is input, it returns True. Otherwi
 
 """    
 def yn():
-    input = raw_input("Are you sure? [y/n]:")
+    input = raw_input("Are you sure? [y/n]:").strip()
     if input.lower() == 'y': return True
     else: return False
