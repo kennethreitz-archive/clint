@@ -17,9 +17,10 @@ STREAM = sys.stderr
 BAR_TEMPLATE = '%s[%s%s] %i/%i\r'
 
 DOTS_CHAR = '.'
+BAR_FILLED_CHAR = '#'
+BAR_EMPTY_CHAR = ' '
 
-
-def bar(it, label='', width=32, hide=False, empty_char='-', filled_char='='):
+def bar(it, label='', width=32, hide=False, empty_char=BAR_EMPTY_CHAR, filled_char=BAR_FILLED_CHAR):
     """Progress iterator. Wrap your iterables with it."""
 
     def _show(_i):
