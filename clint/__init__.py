@@ -15,7 +15,7 @@ from . import arguments
 from . import textui
 from . import utils
 from .pipes import piped_in
-
+from .input import choose, yn
 
 
 __title__ = 'clint'
