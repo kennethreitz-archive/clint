@@ -16,6 +16,10 @@ import os.path
 from os import makedirs
 from glob import glob
 
+try:
+    basestring
+except NameError:
+    basestring = str
 
 def expand_path(path):
     """Expands directories and globs in given path."""
@@ -49,7 +53,7 @@ def mkdir_p(path):
     """Emulates `mkdir -p` behavior."""
     try:
         makedirs(path)
-    except OSError, exc: # Python >2.5
+    except OSError as exc: # Python >2.5
         if exc.errno == errno.EEXIST:
             pass
         else:

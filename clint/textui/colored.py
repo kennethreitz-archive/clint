@@ -14,6 +14,8 @@ from __future__ import absolute_import
 import re
 import sys
 
+PY3 = sys.version_info[0] >= 3
+
 from ..packages import colorama
 
 __all__ = (
@@ -53,11 +55,17 @@ class ColoredString(object):
     def __repr__(self):
         return "<%s-string: '%s'>" % (self.color, self.s)
 
-    def __str__(self):
-        return self.__unicode__().encode('utf8')
-
     def __unicode__(self):
         return self.color_str
+
+    if PY3:
+        __str__ = __unicode__
+    else:
+        def __str__(self):
+            return unicode(self).encode('utf8')
+
+    def __iter__(self):
+        return iter(self.color_str)
 
     def __add__(self, other):
         return str(self.color_str) + str(other)
@@ -68,8 +76,8 @@ class ColoredString(object):
     def __mul__(self, other):
         return (self.color_str * other)
 
-    def split(self, x=' '):
-        return map(self._new, self.s.split(x))
+    def split(self, sep=None):
+        return [self._new(s) for s in self.s.split(sep)]
 
     def _new(self, s):
         return ColoredString(self.color, s)

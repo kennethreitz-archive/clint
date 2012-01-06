@@ -14,7 +14,11 @@ from __future__ import absolute_import
 import os
 from sys import argv
 
-from .packages.ordereddict import OrderedDict
+try:
+    from collections import OrderedDict
+except ImportError:
+    from .packages.ordereddict import OrderedDict
+
 from .utils import expand_path, is_collection
 
 __all__ = ('Args', )

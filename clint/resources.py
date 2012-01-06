@@ -115,7 +115,7 @@ class AppDir(object):
                 remove(fn)
             else:
                 removedirs(fn)
-        except OSError, why:
+        except OSError as why:
             if why.errno == errno.ENOENT:
                 pass
             else:

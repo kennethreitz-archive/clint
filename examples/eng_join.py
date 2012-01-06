@@ -17,7 +17,7 @@ colors = [
     colored.magenta('magenta')
 ]
 
-colors = map(str, colors)
+colors = [str(cs) for cs in colors]
 
 
 puts('Smart:')

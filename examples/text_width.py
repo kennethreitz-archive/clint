@@ -19,5 +19,6 @@ if __name__ == '__main__':
     
     col = 60
     
-    puts(columns([(colored.red('Column 1')), col], [(colored.green('Column Two')), None], [(colored.magenta('Column III')), col]))
+    puts(columns([(colored.red('Column 1')), col], [(colored.green('Column Two')), None],
+                    [(colored.magenta('Column III')), col]))
     puts(columns(['hi there my name is kenneth and this is a columns', col], [lorem, None], ['kenneths', col]))
