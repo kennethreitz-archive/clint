@@ -61,7 +61,10 @@ class ColoredString(object):
         return "<%s-string: '%s'>" % (self.color, self.s)
 
     def __unicode__(self):
-        return self.color_str
+        value = self.color_str
+        if isinstance(value, str) and hasattr(value, 'decode'):
+            return value.decode('utf8')
+        return value
 
     if PY3:
         __str__ = __unicode__
