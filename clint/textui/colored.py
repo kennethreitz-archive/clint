@@ -62,7 +62,7 @@ class ColoredString(object):
 
     def __unicode__(self):
         value = self.color_str
-        if isinstance(value, str) and hasattr(value, 'decode'):
+        if isinstance(value, bytes):
             return value.decode('utf8')
         return value
 
