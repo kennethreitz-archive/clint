@@ -26,10 +26,11 @@ def bar(it, label='', width=32, hide=False, empty_char=BAR_EMPTY_CHAR, filled_ch
     """Progress iterator. Wrap your iterables with it."""
 
     def _show(_i):
-        x = int(width*_i/count)
+        progress_width = width - len(label) - len(str(_i)) - len(str(count)) - 4   # '[]' and other chars
+        x = int(progress_width*_i/count)
         if not hide:
             STREAM.write(BAR_TEMPLATE % (
-                label, filled_char*x, empty_char*(width-x), _i, count))
+                label, filled_char*x, empty_char*(progress_width-x), _i, count))
             STREAM.flush()
 
     count = len(it)
