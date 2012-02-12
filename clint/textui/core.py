@@ -13,12 +13,15 @@ from __future__ import absolute_import
 
 import sys
 
+from contextlib import contextmanager
+
 from .formatters import max_width, min_width
 from .cols import columns
 from ..utils import tsplit
 
 
-__all__ = ('puts', 'puts_err', 'indent', 'columns', 'max_width', 'min_width')
+__all__ = ('puts', 'puts_err', 'indent', 'dedent', 'columns', 'max_width',
+    'min_width')
 
 
 STDOUT = sys.stdout.write
@@ -26,68 +29,60 @@ STDERR = sys.stderr.write
 
 NEWLINES = ('\n', '\r', '\r\n')
 
+INDENT_STRINGS = []
 
+# Private
 
-class Writer(object):
-    """WriterUtilized by context managers."""
-
-    shared = dict(indent_level=0, indent_strings=[])
-
-
-    def __init__(self, indent=0, quote='', indent_char=' '):
-        self.indent = indent
-        self.indent_char = indent_char
-        self.indent_quote = quote
-        if self.indent > 0:
-            self.indent_string = ''.join((
-                str(quote),
-                (self.indent_char * (indent - len(self.indent_quote)))
-            ))
-        else:
-            self.indent_string = ''.join((
-                ('\x08' * (-1 * (indent - len(self.indent_quote)))),
-                str(quote))
-            )
-
-        if len(self.indent_string):
-            self.shared['indent_strings'].append(self.indent_string)
-
-
-    def __enter__(self):
-        return self
-
-
-    def __exit__(self, type, value, traceback):
-        self.shared['indent_strings'].pop()
-
-
-    def __call__(self, s, newline=True, stream=STDOUT):
-
-        if newline:
-            s = tsplit(s, NEWLINES)
-            s = map(str, s)
-            indent = ''.join(self.shared['indent_strings'])
-
-            s = (str('\n' + indent)).join(s)
-
-        _str = ''.join((
-            ''.join(self.shared['indent_strings']),
-            str(s),
-            '\n' if newline else ''
+def _indent(indent=0, quote='', indent_char=' '):
+    """Indent util function, compute new indent_string"""
+    if indent > 0:
+        indent_string = ''.join((
+            str(quote),
+            (indent_char * (indent - len(quote)))
         ))
-        stream(_str)
+    else:
+        indent_string = ''.join((
+            ('\x08' * (-1 * (indent - len(quote)))),
+            str(quote))
+        )
 
+    if len(indent_string):
+        INDENT_STRINGS.append(indent_string)
+
+# Public
 
 def puts(s='', newline=True, stream=STDOUT):
-    """Prints given string to stdout via Writer interface."""
-    Writer()(s, newline, stream=stream)
+    """Prints given string to stdout."""
+    if newline:
+        s = tsplit(s, NEWLINES)
+        s = map(str, s)
+        indent = ''.join(INDENT_STRINGS)
 
+        s = (str('\n' + indent)).join(s)
+
+    _str = ''.join((
+        ''.join(INDENT_STRINGS),
+        str(s),
+        '\n' if newline else ''
+    ))
+    stream(_str)
 
 def puts_err(s='', newline=True, stream=STDERR):
-    """Prints given string to stderr via Writer interface."""
-    Writer()(s, newline, stream=stream)
+    """Prints given string to stderr."""
+    puts(s, newline, stream)
 
+def dedent():
+    """Dedent next strings, use only if you use indent otherwise than as a
+    context."""
+    INDENT_STRINGS.pop()
+
+@contextmanager
+def _indent_context():
+    """Indentation context manager."""
+    yield
+    dedent()
 
 def indent(indent=4, quote=''):
-    """Indentation context manager."""
-    return Writer(indent=indent, quote=quote)
+    """Indentation manager, return an indentation context manager."""
+    _indent(indent, quote)
+    return _indent_context()
