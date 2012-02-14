@@ -241,7 +241,7 @@ class Args(object):
         for arg in self.all:
             if arg.startswith('-'):
                 _current_group = arg
-                collection[arg] = Args(no_argv=True)
+                collection.setdefault(arg, Args(no_argv=True))
             else:
                 if _current_group:
                     collection[_current_group]._args.append(arg)
