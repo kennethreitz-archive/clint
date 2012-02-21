@@ -1,6 +1,14 @@
 History
 -------
 
+0.3.1
++++++
+
+* Progress mill indicator.
+* Colored unicode support.
+* Fix ipython nuance.
+
+
 0.3.0
 +++++
 
