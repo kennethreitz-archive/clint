@@ -1,6 +1,11 @@
 History
 -------
 
+0.3.1
++++++
+
+* Fixed data_files installation problem.
+
 0.3.0
 +++++
 
