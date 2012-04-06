@@ -70,7 +70,7 @@ I want to quote my console text (like email). ::
     >>>     puts('pretty cool, eh?')
     
     not indented text
-     >  indented text
+     >  quoted text
      >  pretty cool, eh?
 
 I want to color my console text. ::
