@@ -16,4 +16,5 @@ with indent(4, quote='>>>'):
     puts(colored.red('NOT Files detected: ') + str(args.not_files))
     puts(colored.red('Grouped Arguments: ') + str(dict(args.grouped)))
     
-print
+print 
+
