@@ -28,7 +28,7 @@ ETA_INTERVAL = 1
 #How many intervals (excluding the current one) to calculate the simple moving average
 ETA_SMA_WINDOW = 9
 
-def bar(it, label='', width=32, hide=False, empty_char=BAR_EMPTY_CHAR, filled_char=BAR_FILLED_CHAR):
+def bar(it, label='', width=32, hide=False, empty_char=BAR_EMPTY_CHAR, filled_char=BAR_FILLED_CHAR, expected_size=None):
     """Progress iterator. Wrap your iterables with it."""
 
     def _show(_i):
@@ -43,7 +43,7 @@ def bar(it, label='', width=32, hide=False, empty_char=BAR_EMPTY_CHAR, filled_ch
             label, filled_char*x, empty_char*(width-x), _i, count, bar.etadisp))
             STREAM.flush()
 
-    count = len(it)
+    count = len(it) if expected_size is None else expected_size
 
     bar.start    = time.time()
     bar.ittimes  = []
@@ -85,7 +85,7 @@ def dots(it, label='', hide=False):
     STREAM.flush()
 
 
-def mill(it, label='', hide=False,): 
+def mill(it, label='', hide=False, expected_size=None):
     """Progress iterator. Prints a mill while iterating over the items."""
 
     def _mill_char(_i):
@@ -100,7 +100,7 @@ def mill(it, label='', hide=False,):
                 label, _mill_char(_i), _i, count))
             STREAM.flush()
 
-    count = len(it)
+    count = len(it) if expected_size is None else expected_size
 
     if count:
         _show(0)
