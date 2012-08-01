@@ -11,7 +11,14 @@ This module sets up the main interface for all of clint.
 
 from __future__ import absolute_import
 
-from . import arguments
+try:
+    from collections import OrderedDict
+except ImportError:
+    from .packages.ordereddict import OrderedDict
+    import collections
+    collections.OrderedDict = OrderedDict
+
+from args import *
 from . import textui
 from . import utils
 from .pipes import piped_in
@@ -25,6 +32,3 @@ __author__ = 'Kenneth Reitz'
 __license__ = 'ISC'
 __copyright__ = 'Copyright 2012 Kenneth Reitz'
 __docformat__ = 'restructuredtext'
-
-
-args = arguments.Args()
