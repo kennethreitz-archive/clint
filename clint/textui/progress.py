@@ -85,7 +85,7 @@ def dots(it, label='', hide=False):
     STREAM.flush()
 
 
-def mill(it, label='', hide=False, expected_size=None):
+def mill(it, label='', hide=False, expected_size=None, continue_from=0):
     """Progress iterator. Prints a mill while iterating over the items."""
 
     def _mill_char(_i):
@@ -103,12 +103,12 @@ def mill(it, label='', hide=False, expected_size=None):
     count = len(it) if expected_size is None else expected_size
 
     if count:
-        _show(0)
+        _show(continue_from + 0)
 
     for i, item in enumerate(it):
 
         yield item
-        _show(i+1)
+        _show(continue_from + i + 1)
 
     if not hide:
         STREAM.write('\n')
