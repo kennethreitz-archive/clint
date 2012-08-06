@@ -12,6 +12,17 @@ from clint.textui import progress
 
 
 if __name__ == '__main__':
+    try:
+        progress.bar()
+        raise Exception("Should have raised a TypeError")
+    except TypeError:
+        pass
+
+    with progress.bar(expected_size=200) as bar:
+        for i in range(200):
+            bar.update(i+1)
+            sleep(0.05)
+
     for i in progress.bar(range(100)):
         sleep(random() * 0.2)
 
