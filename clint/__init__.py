@@ -23,7 +23,9 @@ try:
 except:
     # Import error during setup.py execution while
     # setup tries to get clint.__version__
-    pass
+    import inspect
+    if not inspect.stack()[1][1] == 'setup.py':
+        raise
 
 from . import textui
 from . import utils
