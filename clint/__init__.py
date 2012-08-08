@@ -18,7 +18,13 @@ except ImportError:
     import collections
     collections.OrderedDict = OrderedDict
 
-from args import *
+try:
+    from args import *
+except:
+    # Import error during setup.py execution while
+    # setup tries to get clint.__version__
+    pass
+
 from . import textui
 from . import utils
 from .pipes import piped_in
