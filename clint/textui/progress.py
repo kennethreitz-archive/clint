@@ -88,52 +88,90 @@ class bar(object):
 
 
 
-def dots(it, label='', hide=False):
+class dots(object):
     """Progress iterator. Prints a dot for each item being iterated"""
 
-    count = 0
+    def __init__(self, it=None, label='', hide=False):
+        self.it = it
+        self.label = label
+        self.hide = hide
+        self.count = 0
 
-    if not hide:
-        STREAM.write(label)
+    def _finish(self):
+        STREAM.write('\n')
+        STREAM.flush()
 
-    for item in it:
-        if not hide:
-            STREAM.write(DOTS_CHAR)
-            sys.stderr.flush()
+    def __exit__(self, exc_type, exc_value, traceback):
+        self._finish()
 
-        count += 1
+    def __enter__(self):
+        return self
 
-        yield item
+    def update(self):
+        STREAM.write(DOTS_CHAR)
+        sys.stderr.flush()
 
-    STREAM.write('\n')
-    STREAM.flush()
+    def __iter__(self):
+        if not self.hide:
+            STREAM.write(self.label)
+
+        for item in self.it:
+            if not self.hide:
+                self.update()
+
+            self.count += 1
+
+            yield item
+
+        self._finish()
 
 
-def mill(it, label='', hide=False, expected_size=None):
+class mill(object):
     """Progress iterator. Prints a mill while iterating over the items."""
 
-    def _mill_char(_i):
-        if _i == 100:
+    def __init__(self, it=None, label='', hide=False, expected_size=None):
+        if it is None and expected_size is None:
+            raise TypeError("Either an iterator or expected_size are required")
+
+        self.it = it
+        self.label = label
+        self.hide = hide
+        self.expected_size = expected_size
+        self.count = len(it) if expected_size is None else expected_size
+
+    def _mill_char(self, _i):
+        if _i == self.expected_size:
             return ' '
         else:
             return MILL_CHARS[_i % len(MILL_CHARS)]
 
-    def _show(_i):
-        if not hide:
+    def _show(self, _i):
+        if not self.hide:
             STREAM.write(MILL_TEMPLATE % (
-                label, _mill_char(_i), _i, count))
+                self.label, self._mill_char(_i), _i, self.count))
             STREAM.flush()
 
-    count = len(it) if expected_size is None else expected_size
+    def _finish(self):
+        if not self.hide:
+            STREAM.write('\n')
+            STREAM.flush()
 
-    if count:
-        _show(0)
+    def __exit__(self, exc_type, exc_value, traceback):
+        self._finish()
 
-    for i, item in enumerate(it):
+    def __enter__(self):
+        return self
 
-        yield item
-        _show(i+1)
+    def update(self, i):
+        self._show(i)
 
-    if not hide:
-        STREAM.write('\n')
-        STREAM.flush()
+    def __iter__(self):
+        if self.count:
+            self._show(0)
+
+        for i, item in enumerate(self.it):
+
+            yield item
+            self._show(i+1)
+
+        self._finish()
