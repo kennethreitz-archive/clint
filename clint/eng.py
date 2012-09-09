@@ -20,12 +20,12 @@ except NameError:
     unicode = str
 
 
-def join(l, conj=CONJUNCTION, im_a_moron=MORON_MODE, seperator=COMMA):
+def join(l, conj=CONJUNCTION, im_a_moron=MORON_MODE, separator=COMMA):
     """Joins lists of words. Oxford comma and all."""
 
     collector = []
     left = len(l)
-    seperator = seperator + SPACE
+    separator = separator + SPACE
     conj = conj + SPACE
 
     for _l in l[:]:
@@ -37,12 +37,12 @@ def join(l, conj=CONJUNCTION, im_a_moron=MORON_MODE, seperator=COMMA):
             if len(l) == 2 or im_a_moron:
                 collector.append(SPACE)
             else:
-                collector.append(seperator)
+                collector.append(separator)
 
             collector.append(conj)
 
         elif left is not 0:
-            collector.append(seperator)
+            collector.append(separator)
 
     return unicode(str().join(collector))
 
