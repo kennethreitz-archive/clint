@@ -28,88 +28,150 @@ ETA_INTERVAL = 1
 #How many intervals (excluding the current one) to calculate the simple moving average
 ETA_SMA_WINDOW = 9
 
-def bar(it, label='', width=32, hide=False, empty_char=BAR_EMPTY_CHAR, filled_char=BAR_FILLED_CHAR, expected_size=None):
+class bar(object):
     """Progress iterator. Wrap your iterables with it."""
 
-    def _show(_i):
-        if (time.time() - bar.etadelta) > ETA_INTERVAL:
-            bar.etadelta = time.time()
-            bar.ittimes = bar.ittimes[-ETA_SMA_WINDOW:]+[-(bar.start-time.time())/(_i+1)]
-            bar.eta = sum(bar.ittimes)/float(len(bar.ittimes)) * (count-_i)
-            bar.etadisp = time.strftime('%H:%M:%S', time.gmtime(bar.eta))
-        x = int(width*_i/count)
-        if not hide:
+    def _show(self, _i):
+        if (time.time() - self.etadelta) > ETA_INTERVAL:
+            self.etadelta = time.time()
+            self.ittimes = self.ittimes[-ETA_SMA_WINDOW:]+[-(self.start-time.time())/(_i+1)]
+            self.eta = sum(self.ittimes)/float(len(self.ittimes)) * (self.count-_i)
+            self.etadisp = time.strftime('%H:%M:%S', time.gmtime(self.eta))
+        x = int(self.width*_i/self.count)
+        if not self.hide:
             STREAM.write(BAR_TEMPLATE % (
-            label, filled_char*x, empty_char*(width-x), _i, count, bar.etadisp))
+            self.label, self.filled_char*x, self.empty_char*(self.width-x), _i, self.count, self.etadisp))
             STREAM.flush()
 
-    count = len(it) if expected_size is None else expected_size
+    def __init__(self, it=None, label='', width=32, hide=False, empty_char=BAR_EMPTY_CHAR, filled_char=BAR_FILLED_CHAR, expected_size=None):
+        if it is None and expected_size is None:
+            raise TypeError("Either an iterator or expected_size are required")
 
-    bar.start    = time.time()
-    bar.ittimes  = []
-    bar.eta      = 0
-    bar.etadelta = time.time()
-    bar.etadisp  = time.strftime('%H:%M:%S', time.gmtime(bar.eta))
+        self.it = it
+        self.label = label
+        self.width = width
+        self.hide = hide
+        self.empty_char = empty_char
+        self.filled_char = filled_char
+        self.count = len(it) if expected_size is None else expected_size
 
-    if count:
-        _show(0)
+        self.start    = time.time()
+        self.ittimes  = []
+        self.eta      = 0
+        self.etadelta = time.time()
+        self.etadisp  = time.strftime('%H:%M:%S', time.gmtime(self.eta))
 
-    for i, item in enumerate(it):
+        if self.count:
+            self._show(0)
 
-        yield item
-        _show(i+1)
+    def _finish(self):
+        if not self.hide:
+            STREAM.write('\n')
+            STREAM.flush()
 
-    if not hide:
+    def __exit__(self, exc_type, exc_value, traceback):
+        self._finish()
+
+    def __enter__(self):
+        return self
+
+    def update(self, i):
+        self._show(i)
+
+    def __iter__(self):
+        for i, item in enumerate(self.it):
+
+            yield item
+            self._show(i+1)
+
+        self._finish()
+
+
+
+class dots(object):
+    """Progress iterator. Prints a dot for each item being iterated"""
+
+    def __init__(self, it=None, label='', hide=False):
+        self.it = it
+        self.label = label
+        self.hide = hide
+        self.count = 0
+
+    def _finish(self):
         STREAM.write('\n')
         STREAM.flush()
 
+    def __exit__(self, exc_type, exc_value, traceback):
+        self._finish()
 
-def dots(it, label='', hide=False):
-    """Progress iterator. Prints a dot for each item being iterated"""
+    def __enter__(self):
+        return self
 
-    count = 0
+    def update(self):
+        STREAM.write(DOTS_CHAR)
+        sys.stderr.flush()
 
-    if not hide:
-        STREAM.write(label)
+    def __iter__(self):
+        if not self.hide:
+            STREAM.write(self.label)
 
-    for item in it:
-        if not hide:
-            STREAM.write(DOTS_CHAR)
-            sys.stderr.flush()
+        for item in self.it:
+            if not self.hide:
+                self.update()
 
-        count += 1
+            self.count += 1
 
-        yield item
+            yield item
 
-    STREAM.write('\n')
-    STREAM.flush()
+        self._finish()
 
 
-def mill(it, label='', hide=False, expected_size=None):
+class mill(object):
     """Progress iterator. Prints a mill while iterating over the items."""
 
-    def _mill_char(_i):
-        if _i == 100:
+    def __init__(self, it=None, label='', hide=False, expected_size=None):
+        if it is None and expected_size is None:
+            raise TypeError("Either an iterator or expected_size are required")
+
+        self.it = it
+        self.label = label
+        self.hide = hide
+        self.expected_size = expected_size
+        self.count = len(it) if expected_size is None else expected_size
+
+    def _mill_char(self, _i):
+        if _i == self.expected_size:
             return ' '
         else:
             return MILL_CHARS[_i % len(MILL_CHARS)]
 
-    def _show(_i):
-        if not hide:
+    def _show(self, _i):
+        if not self.hide:
             STREAM.write(MILL_TEMPLATE % (
-                label, _mill_char(_i), _i, count))
+                self.label, self._mill_char(_i), _i, self.count))
             STREAM.flush()
 
-    count = len(it) if expected_size is None else expected_size
+    def _finish(self):
+        if not self.hide:
+            STREAM.write('\n')
+            STREAM.flush()
 
-    if count:
-        _show(0)
+    def __exit__(self, exc_type, exc_value, traceback):
+        self._finish()
 
-    for i, item in enumerate(it):
+    def __enter__(self):
+        return self
 
-        yield item
-        _show(i+1)
+    def update(self, i):
+        self._show(i)
 
-    if not hide:
-        STREAM.write('\n')
-        STREAM.flush()
+    def __iter__(self):
+        if self.count:
+            self._show(0)
+
+        for i, item in enumerate(self.it):
+
+            yield item
+            self._show(i+1)
+
+        self._finish()
