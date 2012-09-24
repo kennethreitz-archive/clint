@@ -45,6 +45,17 @@ class ColoredString(object):
         self.s = s
         self.color = color
 
+    def __getattr__(self, att): 
+             def func_help(*args, **kwargs):
+                 result = getattr(self.s, att)(*args, **kwargs)
+                 if isinstance(result, basestring):
+                     return self._new(result)
+                 elif isinstance(result, list):
+                     return [self._new(x) for x in result]
+                 else:
+                     return result
+             return func_help
+       
     @property
     def color_str(self):
         if sys.stdout.isatty() and not DISABLE_COLOR:
@@ -83,9 +94,6 @@ class ColoredString(object):
 
     def __mul__(self, other):
         return (self.color_str * other)
-
-    def split(self, sep=None):
-        return [self._new(s) for s in self.s.split(sep)]
 
     def _new(self, s):
         return ColoredString(self.color, s)
