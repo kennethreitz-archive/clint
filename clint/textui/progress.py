@@ -14,6 +14,11 @@ import sys
 import time
 
 STREAM = sys.stderr
+# Only show bar in terminals by default (better for piping, logging etc.)
+try:
+    HIDE_DEFAULT = not STREAM.isatty()
+except AttributeError:  # output does not support isatty()
+    HIDE_DEFAULT = True
 
 BAR_TEMPLATE = '%s[%s%s] %i/%i - %s\r'
 MILL_TEMPLATE = '%s %s %i/%i\r'  
@@ -28,7 +33,7 @@ ETA_INTERVAL = 1
 #How many intervals (excluding the current one) to calculate the simple moving average
 ETA_SMA_WINDOW = 9
 
-def bar(it, label='', width=32, hide=False, empty_char=BAR_EMPTY_CHAR, filled_char=BAR_FILLED_CHAR, expected_size=None):
+def bar(it, label='', width=32, hide=HIDE_DEFAULT, empty_char=BAR_EMPTY_CHAR, filled_char=BAR_FILLED_CHAR, expected_size=None):
     """Progress iterator. Wrap your iterables with it."""
 
     def _show(_i):
@@ -64,7 +69,7 @@ def bar(it, label='', width=32, hide=False, empty_char=BAR_EMPTY_CHAR, filled_ch
         STREAM.flush()
 
 
-def dots(it, label='', hide=False):
+def dots(it, label='', hide=HIDE_DEFAULT):
     """Progress iterator. Prints a dot for each item being iterated"""
 
     count = 0
@@ -85,7 +90,7 @@ def dots(it, label='', hide=False):
     STREAM.flush()
 
 
-def mill(it, label='', hide=False, expected_size=None):
+def mill(it, label='', hide=HIDE_DEFAULT, expected_size=None):
     """Progress iterator. Prints a mill while iterating over the items."""
 
     def _mill_char(_i):
