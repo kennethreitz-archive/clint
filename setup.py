@@ -39,7 +39,7 @@ setup(
     packages= [
         'clint',
         'clint.textui',
-        'clint.packages', 'clint.packages.colorama'
+        'clint.packages', 'clint.packages.colorama', 'clint.packages.args'
     ],
     install_requires=required,
     license='ISC',

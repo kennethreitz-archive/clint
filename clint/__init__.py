@@ -18,7 +18,11 @@ except ImportError:
     import collections
     collections.OrderedDict = OrderedDict
 
-from arguments import *
+try:
+    import args
+except ImportError:
+    from .packages import args
+
 from . import textui
 from . import utils
 from .pipes import piped_in
