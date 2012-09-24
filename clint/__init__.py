@@ -26,7 +26,7 @@ from .pipes import piped_in
 
 
 __title__ = 'clint'
-__version__ = '0.3.0'
+__version__ = '0.3.1-hanno1'
 __build__ = 0x000300
 __author__ = 'Kenneth Reitz'
 __license__ = 'ISC'
