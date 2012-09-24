@@ -1,30 +1,51 @@
 # -*- coding: utf-8 -*-
 
 """
-clint.arguments
-~~~~~~~~~~~~~~~
-
-This module provides the CLI argument interface.
-
+args
+~~~~
 """
 
-
-from __future__ import absolute_import
-
 import os
+import sys
 from sys import argv
+from glob import glob
+from collections import OrderedDict
 
-try:
-    from collections import OrderedDict
-except ImportError:
-    from .packages.ordereddict import OrderedDict
-
-from .utils import expand_path, is_collection
-
-__all__ = ('Args', )
+# Python 3
+if sys.version_info[0] == 3:
+    string_type = str
+else:
+    string_type = basestring
 
 
-class Args(object):
+def _expand_path(path):
+    """Expands directories and globs in given path."""
+
+    paths = []
+    path = os.path.expanduser(path)
+    path = os.path.expandvars(path)
+
+    if os.path.isdir(path):
+
+        for (dir, dirs, files) in os.walk(path):
+            for file in files:
+                paths.append(os.path.join(dir, file))
+    else:
+        paths.extend(glob(path))
+
+    return paths
+
+
+def _is_collection(obj):
+    """Tests if an object is a collection. Strings don't count."""
+
+    if isinstance(obj, string_type):
+        return False
+
+    return hasattr(obj, '__getitem__')
+
+
+class ArgsList(object):
     """CLI Argument management."""
 
     def __init__(self, args=None, no_argv=False):
@@ -77,7 +98,7 @@ class Args(object):
             if found is not None:
                 self._args.pop(found)
 
-        if is_collection(x):
+        if _is_collection(x):
             for item in x:
                 _remove(x)
         else:
@@ -114,7 +135,7 @@ class Args(object):
             except ValueError:
                 return None
 
-        if is_collection(x):
+        if _is_collection(x):
             for item in x:
                 found = _find(item)
                 if found is not None:
@@ -135,7 +156,7 @@ class Args(object):
             except ValueError:
                 return None
 
-        if is_collection(x):
+        if _is_collection(x):
             for item in x:
                 found = _find(item)
                 if found:
@@ -156,7 +177,7 @@ class Args(object):
             except ValueError:
                 return None
 
-        if is_collection(x):
+        if _is_collection(x):
             for item in x:
                 found = _find(item)
                 if found:
@@ -172,7 +193,7 @@ class Args(object):
            _args = []
 
            for arg in self.all:
-               if is_collection(x):
+               if _is_collection(x):
                    for _x in x:
                        if arg.startswith(x):
                            _args.append(arg)
@@ -181,14 +202,14 @@ class Args(object):
                    if arg.startswith(x):
                        _args.append(arg)
 
-           return Args(_args, no_argv=True)
+           return ArgsList(_args, no_argv=True)
 
 
     def contains_at(self, x, index):
         """Tests if given [list of] string is at given index."""
 
         try:
-            if is_collection(x):
+            if _is_collection(x):
                 for _x in x:
                     if (_x in self.all[index]) or (_x == self.all[index]):
                         return True
@@ -234,14 +255,14 @@ class Args(object):
            Returns {format: Args, ...}
         """
 
-        collection = OrderedDict(_=Args(no_argv=True))
+        collection = OrderedDict(_=ArgsList(no_argv=True))
 
         _current_group = None
 
         for arg in self.all:
             if arg.startswith('-'):
                 _current_group = arg
-                collection.setdefault(arg, Args(no_argv=True))
+                collection.setdefault(arg, ArgsList(no_argv=True))
             else:
                 if _current_group:
                     collection[_current_group]._args.append(arg)
@@ -274,7 +295,7 @@ class Args(object):
         _args = []
 
         for arg in self.all:
-            if is_collection(x):
+            if _is_collection(x):
                 for _x in x:
                     if _x in arg:
                         _args.append(arg)
@@ -283,7 +304,7 @@ class Args(object):
                 if x in arg:
                     _args.append(arg)
 
-        return Args(_args, no_argv=True)
+        return ArgsList(_args, no_argv=True)
 
 
     def all_without(self, x):
@@ -292,7 +313,7 @@ class Args(object):
         _args = []
 
         for arg in self.all:
-            if is_collection(x):
+            if _is_collection(x):
                 for _x in x:
                     if _x not in arg:
                         _args.append(arg)
@@ -301,7 +322,7 @@ class Args(object):
                 if x not in arg:
                     _args.append(arg)
 
-        return Args(_args, no_argv=True)
+        return ArgsList(_args, no_argv=True)
 
 
     @property
@@ -325,7 +346,7 @@ class Args(object):
         _paths = []
 
         for arg in self.all:
-            for path in expand_path(arg):
+            for path in _expand_path(arg):
                 if os.path.exists(path):
                     if absolute:
                         _paths.append(os.path.abspath(path))
@@ -342,15 +363,56 @@ class Args(object):
         _args = []
 
         for arg in self.all:
-            if not len(expand_path(arg)):
+            if not len(_expand_path(arg)):
                 if not os.path.exists(arg):
                     _args.append(arg)
 
-        return Args(_args, no_argv=True)
+        return ArgsList(_args, no_argv=True)
+
 
     @property
     def copy(self):
         """Returns a copy of Args object for temporary manipulation."""
 
-        return Args(self.all)
+        return ArgsList(self.all)
 
+
+    @property
+    def assignments(self):
+        """Extracts assignment values from assignments."""
+
+        collection = OrderedDict()
+
+        for arg in self.all:
+            if '=' in arg:
+                collection.setdefault(arg.split('=', 1)[0], ArgsList(no_argv=True))
+                collection[arg.split('=', 1)[0]]._args.append(arg.split('=', 1)[1])
+
+        return collection
+
+
+args = ArgsList()
+get = args.get
+get_with = args.get_with
+remove = args.remove
+pop = args.pop
+any_contain = args.any_contain
+contains = args.contains
+first = args.first
+first_with = args.first_with
+first_without = args.first_without
+start_with = args.start_with
+contains_at = args.contains_at
+has = args.has
+value_after = args.value_after
+grouped = args.grouped
+last = args.last
+all = args.all
+all_with = args.all_with
+all_without = args.all_without
+flags = args.flags
+not_flags = args.not_flags
+files = args.files
+not_files = args.not_files
+copy = args.copy
+assignments = args.assignments
