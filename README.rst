@@ -4,7 +4,7 @@ Clint: Python Command-line Application Tools
 **Clint** is a module filled with a set of awesome tools for developing
 commandline applications.
 
-.. image:: https://github.com/kennethreitz/clint/raw/master/misc/clint.jpeg
+.. image:: https://raw.github.com/kennethreitz/clint/develop/misc/clint.jpeg
 
 **C** ommand
 **L** ine
