@@ -21,7 +21,7 @@ from ..utils import tsplit
 
 
 __all__ = ('puts', 'puts_err', 'indent', 'dedent', 'columns', 'max_width',
-    'min_width')
+    'min_width', 'STDOUT', 'STDERR')
 
 
 STDOUT = sys.stdout.write
