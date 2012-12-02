@@ -30,7 +30,7 @@ def yn(prompt, default='y', batch=False):
         if not batch:
             input = raw_input(prompt).strip()
         else:
-            print prompt
+            print (prompt)
             input = ''
 
         # If input is empty default choice is assumed
