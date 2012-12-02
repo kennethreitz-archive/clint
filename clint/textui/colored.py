@@ -48,7 +48,11 @@ class ColoredString(object):
     def __getattr__(self, att): 
              def func_help(*args, **kwargs):
                  result = getattr(self.s, att)(*args, **kwargs)
-                 if isinstance(result, basestring):
+                 try:
+                     is_unistring = isinstance(result, basestring)
+                 except NameError:
+                     is_unistring = isinstance(result, str)
+                 if is_unistring:
                      return self._new(result)
                  elif isinstance(result, list):
                      return [self._new(x) for x in result]
