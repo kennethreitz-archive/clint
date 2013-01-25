@@ -160,4 +160,4 @@ Roadmap
 
 
 .. _`the repository`: http://github.com/kennethreitz/clint
-.. _AUTHORS: http://github.com/kennethreitz/clint/blob/master/AUTHORS
+.. _AUTHORS: http://github.com/kennethreitz/clint/blob/develop/AUTHORS
