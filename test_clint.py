@@ -6,8 +6,8 @@
 import unittest
 
 
-class TablibTestCase(unittest.TestCase):
-    """Tablib test cases."""
+class ClintTestCase(unittest.TestCase):
+    """Clint test cases."""
 
     def setUp(self):
         import clint
