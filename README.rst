@@ -24,7 +24,7 @@ The world's easiest to use implicit argument system w/ chaining methods for filt
 
 Run the various executables in examples_ to get a good feel for what Clint offers.
 
-.. _examples: https://github.com/kennethreitz/clint/tree/develop/examples
+.. _examples: https://github.com/kennethreitz/clint/tree/master/examples
 
 You'll never want to not use it.
 
