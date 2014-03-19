@@ -21,15 +21,15 @@ if __name__ == '__main__':
             puts('This is quoted text.')
             puts(lorem)
         puts("And, we're back to the previous index level. That was easy.")
-        
+
         with indent(12, quote=' |'):
             puts('This is massively indented text.')
             puts('This is massively indented text again.')
             puts("Now I'll show you how to negatively indent.")
-            
+
             with indent(-5, quote='!! '):
                 puts('NOTE: INCEPTION!')
-                
+
             puts('And back to where we were.')
         puts('Back to level 1.')
     puts('Back to normal.')

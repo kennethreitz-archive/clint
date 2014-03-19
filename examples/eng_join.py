@@ -23,9 +23,9 @@ colors = [str(cs) for cs in colors]
 puts('Smart:')
 with indent(4):
     for i in range(len(colors)):
-        puts(join(colors[:i+1]))
+        puts(join(colors[:i + 1]))
 puts('\n')
 puts('Stupid:')
 with indent(4):
     for i in range(len(colors)):
-        puts(join(colors[:i+1], im_a_moron=True, conj='\'n'))
+        puts(join(colors[:i + 1], im_a_moron=True, conj='\'n'))

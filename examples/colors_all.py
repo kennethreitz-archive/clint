@@ -14,5 +14,5 @@ text = 'THIS TEXT IS COLORED %s!'
 
 if __name__ == '__main__':
 
-	for color in colored.COLORS:
-		print(getattr(colored, color)(text % color.upper()))
+    for color in colored.COLORS:
+        print(getattr(colored, color)(text % color.upper()))

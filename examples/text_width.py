@@ -14,11 +14,12 @@ lorem = 'Lorem ipsum dolor sit amet, consehdfhdfhdfhdfhdfhctetur adi pisicing el
 if __name__ == '__main__':
     # puts(min_width('test\nit', 20) + ' me')
     # puts(max_width(lorem, 20) + ' me')
-    
+
     # print max_width(lorem, 45)
-    
+
     col = 60
-    
+
     puts(columns([(colored.red('Column 1')), col], [(colored.green('Column Two')), None],
-                    [(colored.magenta('Column III')), col]))
-    puts(columns(['hi there my name is kenneth and this is a columns', col], [lorem, None], ['kenneths', col]))
+                 [(colored.magenta('Column III')), col]))
+    puts(columns(['hi there my name is kenneth and this is a columns', col], [
+         lorem, None], ['kenneths', col]))

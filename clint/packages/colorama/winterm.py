@@ -4,25 +4,28 @@ from . import win32
 
 # from wincon.h
 class WinColor(object):
-    BLACK   = 0
-    BLUE    = 1
-    GREEN   = 2
-    CYAN    = 3
-    RED     = 4
+    BLACK = 0
+    BLUE = 1
+    GREEN = 2
+    CYAN = 3
+    RED = 4
     MAGENTA = 5
-    YELLOW  = 6
-    GREY    = 7
+    YELLOW = 6
+    GREY = 7
 
 # from wincon.h
+
+
 class WinStyle(object):
-    NORMAL = 0x00 # dim text, dim background
-    BRIGHT = 0x08 # bright text, dim background
+    NORMAL = 0x00  # dim text, dim background
+    BRIGHT = 0x08  # bright text, dim background
 
 
 class WinTerm(object):
 
     def __init__(self):
-        self._default = win32.GetConsoleScreenBufferInfo(win32.STDOUT).wAttributes
+        self._default = win32.GetConsoleScreenBufferInfo(
+            win32.STDOUT).wAttributes
         self.set_attrs(self._default)
         self._default_fore = self._fore
         self._default_back = self._back
@@ -68,7 +71,7 @@ class WinTerm(object):
 
     def set_cursor_position(self, position=None, on_stderr=False):
         if position is None:
-            #I'm not currently tracking the position, so there is no default.
+            # I'm not currently tracking the position, so there is no default.
             #position = self.get_position()
             return
         handle = win32.STDOUT
@@ -81,8 +84,8 @@ class WinTerm(object):
         # 1 should clear from the cursor to the beginning of the screen.
         # 2 should clear the entire screen. (And maybe move cursor to (1,1)?)
         #
-        # At the moment, I only support mode 2. From looking at the API, it 
-        #    should be possible to calculate a different number of bytes to clear, 
+        # At the moment, I only support mode 2. From looking at the API, it
+        #    should be possible to calculate a different number of bytes to clear,
         #    and to do so relative to the cursor position.
         if mode[0] not in (2,):
             return
@@ -90,13 +93,16 @@ class WinTerm(object):
         if on_stderr:
             handle = win32.STDERR
         # here's where we'll home the cursor
-        coord_screen = win32.COORD(0,0) 
+        coord_screen = win32.COORD(0, 0)
         csbi = win32.GetConsoleScreenBufferInfo(handle)
         # get the number of character cells in the current buffer
         dw_con_size = csbi.dwSize.X * csbi.dwSize.Y
         # fill the entire screen with blanks
-        win32.FillConsoleOutputCharacter(handle, ord(' '), dw_con_size, coord_screen)
+        win32.FillConsoleOutputCharacter(
+            handle, ord(' '), dw_con_size, coord_screen)
         # now set the buffer's attributes accordingly
-        win32.FillConsoleOutputAttribute(handle, self.get_attrs(), dw_con_size, coord_screen );
+        win32.FillConsoleOutputAttribute(
+            handle, self.get_attrs(), dw_con_size, coord_screen)
         # put the cursor at (0, 0)
-        win32.SetConsoleCursorPosition(handle, (coord_screen.X, coord_screen.Y))
+        win32.SetConsoleCursorPosition(
+            handle, (coord_screen.X, coord_screen.Y))

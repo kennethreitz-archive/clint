@@ -24,13 +24,15 @@ else:
     TCHAR = c_char
 
     class COORD(Structure):
+
         """struct in wincon.h"""
         _fields_ = [
             ('X', SHORT),
             ('Y', SHORT),
         ]
 
-    class  SMALL_RECT(Structure):
+    class SMALL_RECT(Structure):
+
         """struct in wincon.h."""
         _fields_ = [
             ("Left", SHORT),
@@ -40,6 +42,7 @@ else:
         ]
 
     class CONSOLE_SCREEN_BUFFER_INFO(Structure):
+
         """struct in wincon.h."""
         _fields_ = [
             ("dwSize", COORD),
@@ -48,13 +51,10 @@ else:
             ("srWindow", SMALL_RECT),
             ("dwMaximumWindowSize", COORD),
         ]
+
         def __str__(self):
             return '(%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d)' % (
-                self.dwSize.Y, self.dwSize.X
-                , self.dwCursorPosition.Y, self.dwCursorPosition.X
-                , self.wAttributes
-                , self.srWindow.Top, self.srWindow.Left, self.srWindow.Bottom, self.srWindow.Right
-                , self.dwMaximumWindowSize.Y, self.dwMaximumWindowSize.X
+                self.dwSize.Y, self.dwSize.X, self.dwCursorPosition.Y, self.dwCursorPosition.X, self.wAttributes, self.srWindow.Top, self.srWindow.Left, self.srWindow.Bottom, self.srWindow.Right, self.dwMaximumWindowSize.Y, self.dwMaximumWindowSize.X
             )
 
     def GetConsoleScreenBufferInfo(stream_id=STDOUT):
@@ -75,7 +75,7 @@ else:
     def SetConsoleCursorPosition(stream_id, position):
         position = COORD(*position)
         # If the position is out of range, do nothing.
-        if position.Y <= 0 or position.X <= 0: 
+        if position.Y <= 0 or position.X <= 0:
             return
         # Adjust for Windows' SetConsoleCursorPosition:
         #    1. being 0-based, while ANSI is 1-based.
@@ -87,7 +87,8 @@ else:
         adjusted_position.X += sr.Left
         # Resume normal processing
         handle = handles[stream_id]
-        success = windll.kernel32.SetConsoleCursorPosition(handle, adjusted_position)
+        success = windll.kernel32.SetConsoleCursorPosition(
+            handle, adjusted_position)
         return success
 
     def FillConsoleOutputCharacter(stream_id, char, length, start):
@@ -112,12 +113,16 @@ else:
         return success
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     x = GetConsoleScreenBufferInfo(STDOUT)
     print(x)
-    print('dwSize(height,width)                    = (%d,%d)' % (x.dwSize.Y, x.dwSize.X))
-    print('dwCursorPosition(y,x)                   = (%d,%d)' % (x.dwCursorPosition.Y, x.dwCursorPosition.X))
-    print('wAttributes(color)                      =  %d = 0x%02x' % (x.wAttributes, x.wAttributes))
-    print('srWindow(Top,Left)-(Bottom,Right)       = (%d,%d)-(%d,%d)' % (x.srWindow.Top, x.srWindow.Left, x.srWindow.Bottom, x.srWindow.Right))
-    print('dwMaximumWindowSize(maxHeight,maxWidth) = (%d,%d)' % (x.dwMaximumWindowSize.Y, x.dwMaximumWindowSize.X))
-
+    print('dwSize(height,width)                    = (%d,%d)' %
+          (x.dwSize.Y, x.dwSize.X))
+    print('dwCursorPosition(y,x)                   = (%d,%d)' %
+          (x.dwCursorPosition.Y, x.dwCursorPosition.X))
+    print('wAttributes(color)                      =  %d = 0x%02x' %
+          (x.wAttributes, x.wAttributes))
+    print('srWindow(Top,Left)-(Bottom,Right)       = (%d,%d)-(%d,%d)' %
+          (x.srWindow.Top, x.srWindow.Left, x.srWindow.Bottom, x.srWindow.Right))
+    print('dwMaximumWindowSize(maxHeight,maxWidth) = (%d,%d)' %
+          (x.dwMaximumWindowSize.Y, x.dwMaximumWindowSize.X))
