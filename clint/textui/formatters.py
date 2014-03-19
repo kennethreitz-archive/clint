@@ -29,7 +29,7 @@ def min_width(string, cols, padding=' '):
         if is_color:
             _sub = (_sub.replace(clean(substring), substring))
         stack[i] = _sub
-        
+
     return '\n'.join(stack)
 
 
@@ -43,23 +43,23 @@ def max_width(string, cols, separator='\n'):
         string_copy = string._new('')
     else:
         offset = 0
-        
+
     stack = tsplit(string, NEWLINES)
 
     for i, substring in enumerate(stack):
         stack[i] = substring.split()
 
     _stack = []
-    
+
     for row in stack:
-        _row = ['',]
+        _row = ['', ]
         _row_i = 0
 
         for word in row:
             if (len(_row[_row_i]) + len(word)) < (cols + offset):
                 _row[_row_i] += word
                 _row[_row_i] += ' '
-                
+
             elif len(word) > (cols - offset):
 
                 # ensure empty row

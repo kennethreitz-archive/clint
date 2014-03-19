@@ -11,7 +11,8 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys, os
+import sys
+import os
 sys.path.insert(0, os.path.abspath('..'))
 
 import clint
@@ -22,12 +23,9 @@ import clint
 sys.path.append(os.path.abspath('_themes'))
 
 
-
-# -- General configuration -----------------------------------------------------
-
+# -- General configuration -----------------------------------------------
 # If your documentation needs a minimal Sphinx version, state it here.
 #needs_sphinx = '1.0'
-
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.ifconfig']
@@ -92,7 +90,7 @@ pygments_style = 'sphinx'
 #modindex_common_prefix = []
 
 
-# -- Options for HTML output ---------------------------------------------------
+# -- Options for HTML output ---------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
@@ -172,7 +170,7 @@ html_static_path = ['_static']
 htmlhelp_basename = 'clint'
 
 
-# -- Options for LaTeX output --------------------------------------------------
+# -- Options for LaTeX output --------------------------------------------
 
 # The paper size ('letter' or 'a4').
 #latex_paper_size = 'letter'
@@ -211,7 +209,7 @@ htmlhelp_basename = 'clint'
 #latex_domain_indices = True
 
 
-# -- Options for manual page output --------------------------------------------
+# -- Options for manual page output --------------------------------------
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
@@ -221,7 +219,7 @@ man_pages = [
 ]
 
 
-# -- Options for Epub output ---------------------------------------------------
+# -- Options for Epub output ---------------------------------------------
 
 # Bibliographic Dublin Core info.
 epub_title = u'clint'

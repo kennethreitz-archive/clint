@@ -19,9 +19,11 @@ import sys
 NEWLINES = ('\n', '\r', '\r\n')
 
 
-
 def _find_unix_console_width():
-    import termios, fcntl, struct, sys
+    import termios
+    import fcntl
+    import struct
+    import sys
 
     # fcntl.ioctl will fail if stdout is not a tty
     if not sys.stdout.isatty():
@@ -71,7 +73,6 @@ def console_width(kwargs):
     return console_width
 
 
-
 def columns(*cols, **kwargs):
 
     columns = list(cols)
@@ -80,7 +81,6 @@ def columns(*cols, **kwargs):
 
     _big_col = None
     _total_cols = 0
-
 
     for i, (string, width) in enumerate(cols):
 
@@ -92,10 +92,11 @@ def columns(*cols, **kwargs):
 
     if _big_col:
         cols[_big_col][1] = (cwidth - _total_cols) - len(cols)
-        cols[_big_col][0] = max_width(cols[_big_col][0], cols[_big_col][1]).split('\n')
+        cols[_big_col][0] = max_width(
+            cols[_big_col][0], cols[_big_col][1]).split('\n')
 
     height = len(max([c[0] for c in cols], key=len))
-    
+
     for i, (strings, width) in enumerate(cols):
 
         for _ in range(height - len(strings)):
@@ -104,7 +105,7 @@ def columns(*cols, **kwargs):
         for j, string in enumerate(strings):
             cols[i][0][j] = min_width(string, width)
 
-    stack =  [c[0] for c in cols]
+    stack = [c[0] for c in cols]
     _out = []
 
     for i in range(height):
@@ -120,9 +121,6 @@ def columns(*cols, **kwargs):
 #            except:
 #                pass
 
-
-
-
     return '\n'.join(_out)
 
 
@@ -132,9 +130,7 @@ def columns(*cols, **kwargs):
 #        columns.append()
 
 
-
 ###########################
-
 a = 'this is text that goes into a small column\n cool?'
 b = 'this is other text\nothertext\nothertext'
 

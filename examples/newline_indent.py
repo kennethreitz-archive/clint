@@ -23,7 +23,7 @@ culpa qui officia deserunt mollit anim id est laborum.
 if __name__ == '__main__':
     with indent(4):
         puts(lorem)
-        
+
     with indent(5, quote=' |'):
         with open('newline_indent.py', 'r') as f:
             puts(f.read())

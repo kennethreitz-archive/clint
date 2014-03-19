@@ -21,6 +21,7 @@ try:
 except NameError:
     basestring = str
 
+
 def expand_path(path):
     """Expands directories and globs in given path."""
 
@@ -39,7 +40,6 @@ def expand_path(path):
     return paths
 
 
-
 def is_collection(obj):
     """Tests if an object is a collection. Strings don't count."""
 
@@ -53,17 +53,18 @@ def mkdir_p(path):
     """Emulates `mkdir -p` behavior."""
     try:
         makedirs(path)
-    except OSError as exc: # Python >2.5
+    except OSError as exc:  # Python >2.5
         if exc.errno == errno.EEXIST:
             pass
         else:
             raise
 
+
 def tsplit(string, delimiters):
     """Behaves str.split but supports tuples of delimiters."""
     delimiters = tuple(delimiters)
     if len(delimiters) < 1:
-        return [string,]
+        return [string, ]
     final_delimiter = delimiters[0]
     for i in delimiters[1:]:
         string = string.replace(i, final_delimiter)
@@ -72,4 +73,4 @@ def tsplit(string, delimiters):
 
 def schunk(string, size):
     """Splits string into n sized chunks."""
-    return [string[i:i+size] for i in range(0, len(string), size)]
+    return [string[i:i + size] for i in range(0, len(string), size)]

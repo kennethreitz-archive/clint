@@ -22,15 +22,16 @@ if __name__ == '__main__':
             puts('This is quoted text.')
             puts(colored.green(lorem))
         puts("And, we're back to the previous index level. That was easy.")
-        
+
         with indent(12, quote=colored.cyan(' |')):
             puts('This is massively indented text.')
-            puts(colored.magenta('This is massively indented text that\'s colored'))
+            puts(
+                colored.magenta('This is massively indented text that\'s colored'))
             puts("Now I'll show you how to negatively indent.")
-            
+
             with indent(-5, quote=colored.yellow('!! ')):
                 puts('NOTE: ' + colored.red('INCEPTION!'))
-                
+
             puts('And back to where we were.')
         puts('Back to level 1.')
     puts('Back to normal.')

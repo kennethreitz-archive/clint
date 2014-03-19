@@ -24,7 +24,6 @@ from . import utils
 from .pipes import piped_in
 
 
-
 __title__ = 'clint'
 __version__ = '0.3.5'
 __build__ = 0x000305

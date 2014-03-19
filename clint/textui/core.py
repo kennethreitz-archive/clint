@@ -21,7 +21,7 @@ from ..utils import tsplit
 
 
 __all__ = ('puts', 'puts_err', 'indent', 'dedent', 'columns', 'max_width',
-    'min_width', 'STDOUT', 'STDERR')
+           'min_width', 'STDOUT', 'STDERR')
 
 
 STDOUT = sys.stdout.write
@@ -32,6 +32,7 @@ NEWLINES = ('\n', '\r', '\r\n')
 INDENT_STRINGS = []
 
 # Private
+
 
 def _indent(indent=0, quote='', indent_char=' '):
     """Indent util function, compute new indent_string"""
@@ -51,6 +52,7 @@ def _indent(indent=0, quote='', indent_char=' '):
 
 # Public
 
+
 def puts(s='', newline=True, stream=STDOUT):
     """Prints given string to stdout."""
     if newline:
@@ -67,20 +69,24 @@ def puts(s='', newline=True, stream=STDOUT):
     ))
     stream(_str)
 
+
 def puts_err(s='', newline=True, stream=STDERR):
     """Prints given string to stderr."""
     puts(s, newline, stream)
+
 
 def dedent():
     """Dedent next strings, use only if you use indent otherwise than as a
     context."""
     INDENT_STRINGS.pop()
 
+
 @contextmanager
 def _indent_context():
     """Indentation context manager."""
     yield
     dedent()
+
 
 def indent(indent=4, quote=''):
     """Indentation manager, return an indentation context manager."""

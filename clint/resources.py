@@ -27,6 +27,7 @@ __all__ = (
 
 
 class AppDir(object):
+
     """Application Directory object."""
 
     def __init__(self, path=None):
@@ -36,10 +37,8 @@ class AppDir(object):
         if path:
             self._create()
 
-
     def __repr__(self):
         return '<app-dir: %s>' % (self.path)
-
 
     def __getattribute__(self, name):
 
@@ -48,12 +47,10 @@ class AppDir(object):
                 self._create()
         return object.__getattribute__(self, name)
 
-
     def _raise_if_none(self):
         """Raises if operations are carried out on an unconfigured AppDir."""
         if not self.path:
             raise NotConfigured()
-
 
     def _create(self):
         """Creates current AppDir at AppDir.path."""
@@ -63,7 +60,6 @@ class AppDir(object):
             mkdir_p(self.path)
             self._exists = True
 
-
     def open(self, filename, mode='r'):
         """Returns file object from given filename."""
 
@@ -71,7 +67,6 @@ class AppDir(object):
         fn = path_join(self.path, filename)
 
         return open(fn, mode)
-
 
     def write(self, filename, content, binary=False):
         """Writes given content to given filename."""
@@ -83,10 +78,8 @@ class AppDir(object):
         else:
             flags = 'w'
 
-
         with open(fn, flags) as f:
             f.write(content)
-
 
     def append(self, filename, content, binary=False):
         """Appends given content to given filename."""
@@ -121,7 +114,6 @@ class AppDir(object):
             else:
                 raise why
 
-
     def read(self, filename, binary=False):
         """Returns contents of given file with AppDir.
         If file doesn't exist, returns None."""
@@ -139,7 +131,6 @@ class AppDir(object):
                 return f.read()
         except IOError:
             return None
-
 
     def sub(self, path):
         """Returns AppDir instance for given subdirectory name."""
@@ -172,4 +163,5 @@ def init(vendor, name):
 
 
 class NotConfigured(IOError):
+
     """Application configuration required. Please run resources.init() first."""

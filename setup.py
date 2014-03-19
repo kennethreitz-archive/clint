@@ -11,6 +11,7 @@ except ImportError:
 
 import clint
 
+
 def publish():
     """Publish to PyPi"""
     os.system("python setup.py sdist upload")
@@ -26,11 +27,11 @@ setup(
     version=clint.__version__,
     description='Python Command-line Application Tools',
     long_description=open('README.rst').read() + '\n\n' +
-                     open('HISTORY.rst').read(),
+    open('HISTORY.rst').read(),
     author='Kenneth Reitz',
     author_email='me@kennethreitz.com',
     url='https://github.com/kennethreitz/clint',
-    packages= [
+    packages=[
         'clint',
         'clint.textui',
         'clint.packages', 'clint.packages.colorama'
@@ -38,7 +39,7 @@ setup(
     install_requires=required,
     license='ISC',
     classifiers=(
-#       'Development Status :: 5 - Production/Stable',
+        #       'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
         'Intended Audience :: Developers',
         'Natural Language :: English',

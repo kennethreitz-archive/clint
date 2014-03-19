@@ -7,7 +7,7 @@ See <http://github.com/ActiveState/appdirs> for details and usage.
 """
 # Dev Notes:
 # - MSDN on where to store app data files:
-#   http://support.microsoft.com/default.aspx?scid=kb;en-us;310294#XSLTH3194121123120121120120
+# http://support.microsoft.com/default.aspx?scid=kb;en-us;310294#XSLTH3194121123120121120120
 # - Mac OS X: http://developer.apple.com/documentation/MacOSX/Conceptual/BPFileSystem/index.html
 # - XDG spec for Un*x: http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
 
@@ -23,9 +23,9 @@ PY3 = sys.version_info[0] == 3
 if PY3:
     unicode = str
 
+
 class AppDirsError(Exception):
     pass
-
 
 
 def user_data_dir(appname, appauthor=None, version=None, roaming=False):
@@ -113,7 +113,7 @@ def site_data_dir(appname, appauthor=None, version=None):
     else:
         # XDG default for $XDG_CONFIG_DIRS[0]. Perhaps should actually
         # *use* that envvar, if defined.
-        path = "/etc/xdg/"+appname.lower()
+        path = "/etc/xdg/" + appname.lower()
     if version:
         path = os.path.join(path, version)
     return path
@@ -168,6 +168,7 @@ def user_cache_dir(appname, appauthor=None, version=None, opinion=True):
         path = os.path.join(path, version)
     return path
 
+
 def user_log_dir(appname, appauthor=None, version=None, opinion=True):
     r"""Return full path to the user-specific log dir for this application.
 
@@ -202,11 +203,13 @@ def user_log_dir(appname, appauthor=None, version=None, opinion=True):
             os.path.expanduser('~/Library/Logs'),
             appname)
     elif sys.platform == "win32":
-        path = user_data_dir(appname, appauthor, version); version=False
+        path = user_data_dir(appname, appauthor, version)
+        version = False
         if opinion:
             path = os.path.join(path, "Logs")
     else:
-        path = user_cache_dir(appname, appauthor, version); version=False
+        path = user_cache_dir(appname, appauthor, version)
+        version = False
         if opinion:
             path = os.path.join(path, "log")
     if version:
@@ -215,34 +218,37 @@ def user_log_dir(appname, appauthor=None, version=None, opinion=True):
 
 
 class AppDirs(object):
+
     """Convenience wrapper for getting application dirs."""
+
     def __init__(self, appname, appauthor, version=None, roaming=False):
         self.appname = appname
         self.appauthor = appauthor
         self.version = version
         self.roaming = roaming
+
     @property
     def user_data_dir(self):
         return user_data_dir(self.appname, self.appauthor,
-            version=self.version, roaming=self.roaming)
+                             version=self.version, roaming=self.roaming)
+
     @property
     def site_data_dir(self):
         return site_data_dir(self.appname, self.appauthor,
-            version=self.version)
+                             version=self.version)
+
     @property
     def user_cache_dir(self):
         return user_cache_dir(self.appname, self.appauthor,
-            version=self.version)
+                              version=self.version)
+
     @property
     def user_log_dir(self):
         return user_log_dir(self.appname, self.appauthor,
-            version=self.version)
-
-
+                            version=self.version)
 
 
 #---- internal support stuff
-
 def _get_win_folder_from_registry(csidl_name):
     """This is a fallback technique at best. I'm not sure if using the
     registry for this guarantees us the correct answer for all CSIDL_*
@@ -257,9 +263,10 @@ def _get_win_folder_from_registry(csidl_name):
     }[csidl_name]
 
     key = _winreg.OpenKey(_winreg.HKEY_CURRENT_USER,
-        r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders")
+                          r"Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders")
     dir, type = _winreg.QueryValueEx(key, shell_folder_name)
     return dir
+
 
 def _get_win_folder_with_pywin32(csidl_name):
     from win32com.shell import shellcon, shell
@@ -286,6 +293,7 @@ def _get_win_folder_with_pywin32(csidl_name):
     except UnicodeError:
         pass
     return dir
+
 
 def _get_win_folder_with_ctypes(csidl_name):
     import ctypes
@@ -325,15 +333,13 @@ if sys.platform == "win32":
             _get_win_folder = _get_win_folder_from_registry
 
 
-
 #---- self test code
-
 if __name__ == "__main__":
     appname = "MyApp"
     appauthor = "MyCompany"
 
     props = ("user_data_dir", "site_data_dir", "user_cache_dir",
-        "user_log_dir")
+             "user_log_dir")
 
     print("-- app dirs (without optional 'version')")
     dirs = AppDirs(appname, appauthor, version="1.0")
