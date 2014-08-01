@@ -63,7 +63,7 @@ class Bar(object):
         self.etadisp =        time.strftime('%H:%M:%S', time.gmtime(self.eta))
         self.progress_start = progress_start
         if (self.expected_size):
-            self.show(0)
+            self.show(self.progress_start)
         
     def show(self, progress, count=None):
         if count is not None:
