@@ -42,7 +42,8 @@ class Bar(object):
         return False # we're not surpressing exceptions
     
     def __init__(self, label='', width=32, hide=None, empty_char=BAR_EMPTY_CHAR,
-                 filled_char=BAR_FILLED_CHAR, expected_size=None, every=1):
+                 filled_char=BAR_FILLED_CHAR, expected_size=None, every=1,
+                 progress_start=0):
         self.label = label
         self.width = width
         self.hide = hide
@@ -51,17 +52,18 @@ class Bar(object):
                 self.hide = not STREAM.isatty()
             except AttributeError:  # output does not support isatty()
                 self.hide = True                
-        self.empty_char =    empty_char
-        self.filled_char =   filled_char
-        self.expected_size = expected_size
-        self.every =         every
-        self.start =         time.time()
-        self.ittimes =       []
-        self.eta =           0
-        self.etadelta =      time.time()
-        self.etadisp =       time.strftime('%H:%M:%S', time.gmtime(self.eta))
+        self.empty_char =     empty_char
+        self.filled_char =    filled_char
+        self.expected_size =  expected_size
+        self.every =          every
+        self.start =          time.time()
+        self.ittimes =        []
+        self.eta =            0
+        self.etadelta =       time.time()
+        self.etadisp =        time.strftime('%H:%M:%S', time.gmtime(self.eta))
+        self.progress_start = progress_start
         if (self.expected_size):
-            self.show(0)
+            self.show(self.progress_start)
         
     def show(self, progress, count=None):
         if count is not None:
@@ -72,7 +74,7 @@ class Bar(object):
             self.etadelta = time.time()
             self.ittimes = \
                 self.ittimes[-ETA_SMA_WINDOW:]+\
-                    [-(self.start-time.time())/(progress+1)]
+                    [-(self.start-time.time())/(progress+1-self.progress_start)]
             self.eta = \
                 sum(self.ittimes)/float(len(self.ittimes)) * \
                 (self.expected_size-progress)
