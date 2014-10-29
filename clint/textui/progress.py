@@ -12,6 +12,7 @@ from __future__ import absolute_import
 
 import sys
 import time
+import os
 
 STREAM = sys.stderr
 # Only show bar in terminals by default (better for piping, logging etc.)
@@ -20,8 +21,8 @@ try:
 except AttributeError:  # output does not support isatty()
     HIDE_DEFAULT = True
 
-BAR_TEMPLATE = '%s[%s%s] %i/%i - %s\r'
-MILL_TEMPLATE = '%s %s %i/%i\r'  
+BAR_TEMPLATE = '%s[%s%s] %i/%i - %s'
+MILL_TEMPLATE = '%s %s %i/%i'  
 
 DOTS_CHAR = '.'
 BAR_FILLED_CHAR = '#'
@@ -81,12 +82,21 @@ class Bar(object):
             self.etadisp = time.strftime('%H:%M:%S', time.gmtime(self.eta))
         x = int(self.width*progress/self.expected_size)
         if not self.hide:
+            if not HIDE_DEFAULT:
+                lines, cols = map(int, os.popen('stty size', 'r').read().split())
+            else:
+                lines, cols = None, None
+
             if ((progress % self.every)==0 or      # True every "every" updates
                 (progress == self.expected_size)): # And when we're done
-                STREAM.write(BAR_TEMPLATE % (
-                    self.label, self.filled_char*x,
-                    self.empty_char*(self.width-x), progress,
-                    self.expected_size, self.etadisp))
+                output = BAR_TEMPLATE % (
+                                        self.label, self.filled_char*x,
+                                        self.empty_char*(self.width-x), progress,
+                                        self.expected_size, self.etadisp)
+                STREAM.write('\r')
+                if cols is not None and cols < len(output):
+                    output = output[:cols]
+                STREAM.write(output)
                 STREAM.flush()
 
     def done(self):
