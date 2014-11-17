@@ -30,5 +30,5 @@ if __name__ == '__main__':
 
     # Override the expected_size, for iterables that don't support len()
     D = dict(zip(range(100), range(100)))
-    for k, v in progress.bar(D.iteritems(), expected_size=len(D)):
+    for k, v in progress.bar(D.items(), expected_size=len(D)):
         sleep(random() * 0.2)

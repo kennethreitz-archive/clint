@@ -79,8 +79,10 @@ def dedent():
 @contextmanager
 def _indent_context():
     """Indentation context manager."""
-    yield
-    dedent()
+    try:
+        yield
+    finally:
+        dedent()
 
 def indent(indent=4, quote=''):
     """Indentation manager, return an indentation context manager."""
