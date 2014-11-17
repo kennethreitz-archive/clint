@@ -43,7 +43,7 @@ class Bar(object):
     
     def __init__(self, label='', width=32, hide=None, empty_char=BAR_EMPTY_CHAR,
                  filled_char=BAR_FILLED_CHAR, expected_size=None, every=1,
-                 progress_start=0):
+                 start_progress=0):
         self.label = label
         self.width = width
         self.hide = hide
@@ -61,9 +61,9 @@ class Bar(object):
         self.eta =            0
         self.etadelta =       time.time()
         self.etadisp =        time.strftime('%H:%M:%S', time.gmtime(self.eta))
-        self.progress_start = progress_start
+        self.start_progress = start_progress
         if (self.expected_size):
-            self.show(self.progress_start)
+            self.show(self.start_progress)
         
     def show(self, progress, count=None):
         if count is not None:
@@ -74,7 +74,7 @@ class Bar(object):
             self.etadelta = time.time()
             self.ittimes = \
                 self.ittimes[-ETA_SMA_WINDOW:]+\
-                    [-(self.start-time.time())/(progress+1-self.progress_start)]
+                    [-(self.start-time.time())/(progress+1-self.start_progress)]
             self.eta = \
                 sum(self.ittimes)/float(len(self.ittimes)) * \
                 (self.expected_size-progress)
