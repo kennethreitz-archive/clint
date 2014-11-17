@@ -11,6 +11,11 @@ Module for simple interactive prompts handling
 from __future__ import absolute_import, print_function
 
 from re import match, I
+
+from .core import puts
+from .colored import yellow
+from .validators import RegexValidator
+
 try:
     raw_input
 except NameError:
@@ -52,3 +57,34 @@ def yn(prompt, default='y', batch=False):
         # then return True, False otherwise
         elif match('n(?:o)?', input, I):
             return True if default == 'n' else False
+
+
+def query(prompt, default='', validators=None, batch=False):
+    # Set the nonempty validator as default
+    if validators is None:
+        validators = [RegexValidator(r'.+')]
+
+    # Let's build the prompt
+    if prompt[-1] is not ' ':
+        prompt += ' '
+
+    if default:
+        prompt += '[' + default + '] '
+
+    # If input is not valid keep asking
+    while True:
+        # If batch option is True then auto reply
+        # with default input
+        if not batch:
+            user_input = raw_input(prompt).strip() or default
+        else:
+            print(prompt)
+            user_input = ''
+
+        # Validate the user input
+        try:
+            for validator in validators:
+                user_input = validator(user_input)
+            return user_input
+        except Exception as e:
+            puts(yellow(e.message))

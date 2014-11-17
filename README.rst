@@ -45,7 +45,6 @@ Future Features:
 ----------------
 - Documentation!
 - Simple choice system ``Are you sure? [Yn]``
-- Default query system ``Installation Path [/usr/local/bin/]``
 - Suggestions welcome.
 
 
@@ -112,6 +111,11 @@ I want to store a configuration file. ::
 I want to force color output even if stdout is not a TTY:
 
     $ export CLINT_FORCE_COLOR=1
+
+I want to ask for input. ::
+
+    >>> from clint.textui import prompt, validators
+    >>> path = prompt.query('Installation Path', default='/usr/local/bin/', validators=[validators.PathValidator()])
 
 
 Installation
