@@ -18,4 +18,8 @@ if __name__ == '__main__':
     # Use a default value and a validator
     path = prompt.query('Installation Path', default='/usr/local/bin/', validators=[validators.PathValidator()])
 
-    puts(colored.blue('Hi {0}. Install {1} to {2}'.format(name, language or 'nothing', path)))
+    # Use y/n choice
+    if prompt.yn("Are you sure?"):
+        puts(colored.blue('Hi {0}. Install {1} to {2}'.format(name, language or 'nothing', path)))
+    else:
+        puts(colored.blue('Bye {0}!').format(name))

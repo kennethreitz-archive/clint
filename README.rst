@@ -44,7 +44,6 @@ Current Features:
 Future Features:
 ----------------
 - Documentation!
-- Simple choice system ``Are you sure? [Yn]``
 - Suggestions welcome.
 
 
@@ -117,7 +116,10 @@ I want to ask for input. ::
     >>> from clint.textui import prompt, validators
     >>> path = prompt.query('Installation Path', default='/usr/local/bin/', validators=[validators.PathValidator()])
 
+I want to ask for a choice. ::
 
+    >>> from clint.textui import prompt
+    >>> sure = prompt.yn('Are you sure?')
 Installation
 ------------
 
