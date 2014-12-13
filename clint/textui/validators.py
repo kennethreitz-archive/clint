@@ -102,3 +102,15 @@ class IntegerValidator(object):
             return int(value)
         except (TypeError, ValueError):
             raise ValidationError(self.message)
+
+
+class YnValidator(object):
+    def __call__(self, value):
+        """
+        Validates that the input as bool.
+        """
+        if re.match('n(?:o)?', value, re.I):
+            return False
+
+        return True
+
