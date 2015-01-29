@@ -102,3 +102,21 @@ class IntegerValidator(object):
             return int(value)
         except (TypeError, ValueError):
             raise ValidationError(self.message)
+
+class OptionValidator(object):
+    message = 'Select from the list of valid options.'
+
+    def __init__(self, options, message=None):
+        self.options = options
+        if message is not None:
+            self.message = message
+
+    def __call__(self, value):
+        """
+        Validates that the input is in the options list.
+        """
+        if value in self.options:
+            return value
+        else:
+            raise ValidationError(self.message)
+
