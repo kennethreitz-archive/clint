@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+
 import sys
 import os
 
@@ -33,16 +35,16 @@ if __name__ == '__main__':
             label='Elapsed time:',
             hidden=True) as et:
         for i in range(3):
-            print 'This is loop: %d/3' % (i+1)
+            print('This is loop: %d/3' % (i+1))
             sleep(1)
         et.show()
 
     # Use without 'with' statement
     et = elapsedtime.ElapsedTime(label='Without with:')
-    print 'Running long job...'
+    print('Running long job...')
     sleep(3)
     et.show()
     et.reset()
-    print 'Running another long job...'
+    print('Running another long job...')
     sleep(3)
     et.show()
