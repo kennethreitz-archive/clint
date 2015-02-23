@@ -13,6 +13,7 @@ if sys.platform.startswith('win'):
     colorama.init()
 
 from . import colored
+from . import elapsedtime
 from . import progress
 from . import prompt
 
