@@ -19,7 +19,7 @@ NO_INDICATOR_TEMPLATE = '%s %s\r'
 
 INDICATOR_CHARS = ['|', '/', '-', '\\']
 
-STREAM = sys.stdout
+STREAM = sys.stderr
 
 
 class ElapsedTime(object):
