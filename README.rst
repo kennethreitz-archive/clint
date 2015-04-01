@@ -74,7 +74,7 @@ I want to quote my console text (like email). ::
 
 I want to color my console text. ::
 
-    >>> from clint.textui import colored
+    >>> from clint.textui import colored, puts
 
     >>> puts(colored.red('red text'))
     red text
