@@ -18,25 +18,25 @@ class ClintTestCase(unittest.TestCase):
         pass
 
 class ColoredStringTestCase(unittest.TestCase):
-    
+
     def setUp(self):
         from clint.textui.colored import ColoredString
-    
+
     def tearDown(self):
         pass
-    
+
     def test_split(self):
         from clint.textui.colored import ColoredString
         new_str = ColoredString('red', "hello world")
         output = new_str.split()
         assert output[0].s == "hello"
-    
+
     def test_find(self):
         from clint.textui.colored import ColoredString
         new_str = ColoredString('blue', "hello world")
         output = new_str.find('h')
         self.assertEqual(output, 0)
-        
+
     def test_replace(self):
         from clint.textui.colored import ColoredString
         new_str = ColoredString('green', "hello world")
@@ -57,6 +57,13 @@ class ColoredStringTestCase(unittest.TestCase):
         new_str = ColoredString('RED', 'hello world')
         assert new_str.always_color == True
 
+    def test_color_slice(self):
+        from clint.textui.colored import ColoredString
+        new_str = ColoredString('GREEN', 'hello world')
+        hello = new_str[:6]
+        world = new_str[-6:]
+        assert "world" not in hello
+        assert "hello" not in world
 
 if __name__ == '__main__':
     unittest.main()
