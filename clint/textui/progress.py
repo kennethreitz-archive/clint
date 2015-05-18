@@ -12,7 +12,8 @@ from __future__ import absolute_import
 
 import sys
 import time
-import os
+import subprocess
+from datetime import timedelta, datetime
 
 STREAM = sys.stderr
 
@@ -41,7 +42,7 @@ class Bar(object):
 
     def __init__(self, label='', width=32, hide=None, empty_char=BAR_EMPTY_CHAR,
                  filled_char=BAR_FILLED_CHAR, expected_size=None, every=1,
-                 start_progress=0):
+                 progress_start=0):
         self.label = label
         self.width = width
         self.hide = hide
@@ -60,10 +61,11 @@ class Bar(object):
         self.eta =            0
         self.etadelta =       time.time()
         self.etadisp =        self.format_time(self.eta)
-        self.last_progress =  0
-        self.start_progress = start_progress
+        self.last_progress =  progress_start
+        self.progress_start = progress_start
+        self.previous =       datetime.now()
         if (self.expected_size):
-            self.show(self.start_progress)
+            self.show(self.progress_start)
 
     def show(self, progress, count=None):
         if count is not None:
@@ -75,24 +77,41 @@ class Bar(object):
             self.etadelta = time.time()
             self.ittimes = \
                 self.ittimes[-ETA_SMA_WINDOW:]+\
-                    [-(self.start - time.time()) / (progress + 1 - self.start_progress)]
+                    [-(self.start - time.time()) / (progress + 1 - self.progress_start)]
             self.eta = \
                 sum(self.ittimes) / float(len(self.ittimes)) * \
                 (self.expected_size - progress)
             self.etadisp = self.format_time(self.eta)
         x = int(self.width * progress / self.expected_size)
+
         if not self.hide:
-            lines, cols = map(int, os.popen('stty size', 'r').read().split())
-            if ((progress % self.every) == 0 or      # True every "every" updates
-                (progress == self.expected_size)):   # And when we're done
+            update = False
+            if type(self.every) == timedelta:
+                update = (self.previous + self.every) <= datetime.now()
+            elif (progress % self.every)==0 or progress == self.expected_size:
+                # True every "every" updates
+                # And when we're done
+                update = True
+
+            if update:
+                lines, cols = None, None
+                try:
+                    output = subprocess.check_output('stty size'.split(), stderr=subprocess.STDOUT)
+                    output = tuple(map(int, output.decode('ascii').split()))
+                    if len(output) == 2:
+                        lines, cols = output
+                except (FileNotFoundError, subprocess.CalledProcessError, ValueError):
+                    pass
+
+                self.previous = datetime.now()
                 output = BAR_TEMPLATE % (
                                         self.label, self.filled_char*x,
                                         self.empty_char*(self.width-x), progress,
                                         self.expected_size, self.etadisp)
-                STREAM.write('\r')
                 if cols is not None and cols < len(output):
                     output = output[:cols]
                 STREAM.write(output)
+                STREAM.write('\r')
                 STREAM.flush()
 
     def done(self):
