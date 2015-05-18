@@ -76,8 +76,6 @@ class Bar(object):
             self.ittimes = \
                 self.ittimes[-ETA_SMA_WINDOW:]+\
                     [-(self.start - time.time()) / (progress + 1 - self.start_progress)]
-                self.ittimes[-ETA_SMA_WINDOW:] + \
-                    [-(self.start - time.time()) / (progress+1)]
             self.eta = \
                 sum(self.ittimes) / float(len(self.ittimes)) * \
                 (self.expected_size - progress)
