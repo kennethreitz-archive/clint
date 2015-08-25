@@ -26,8 +26,8 @@ from .pipes import piped_in
 
 
 __title__ = 'clint'
-__version__ = '0.5.0'
-__build__ = 0x000500
+__version__ = '0.5.1'
+__build__ = 0x000501
 __author__ = 'Kenneth Reitz'
 __license__ = 'ISC'
 __copyright__ = 'Copyright 2012 Kenneth Reitz'

@@ -1,6 +1,10 @@
 History
 -------
 
+0.5.1
++++++
+* Fix line width calculation in max_width when using coloured text (thanks to @wkentaro) 
+
 0.5.0
 +++++
 * Added option prompt
