@@ -58,5 +58,30 @@ class ColoredStringTestCase(unittest.TestCase):
         assert new_str.always_color == True
 
 
+class TextuiFormatterTestCase(unittest.TestCase):
+
+    def test_max_width(self):
+
+        def _test_n_rows_width(ins, rows, n_rows, max_width):
+            ins.assertEqual(len(rows), n_rows)
+            for row in rows:
+                ins.assertLessEqual(len(row), max_width)
+
+        from clint.textui.formatters import max_width
+        from clint.textui import colored
+        # normal text
+        text = ' '.join(['XXX'] * 3)
+        rows = max_width(text, 6).split('\n')
+        _test_n_rows_width(self, rows, 3, 6)
+        rows = max_width(text, 7).split('\n')
+        _test_n_rows_width(self, rows, 2, 7)
+        # colored text
+        c_text = colored.yellow(text)
+        rows = max_width(c_text, 6).split('\n')
+        _test_n_rows_width(self, rows, 3, 6)
+        rows = max_width(c_text, 7).split('\n')
+        _test_n_rows_width(self, rows, 2, 7)
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -34,16 +34,27 @@ def min_width(string, cols, padding=' '):
 
 
 def max_width(string, cols, separator='\n'):
-    """Returns a freshly formatted """
+    """Returns a freshly formatted
+    :param string: string to be formatted
+    :type string: basestring or clint.textui.colorred.ColoredString
+    :param cols: max width the text to be formatted
+    :type cols: int
+    :param separator: separator to break rows
+    :type separator: basestring
+
+        >>> formatters.max_width('123 5678', 8)
+        '123 5678'
+        >>> formatters.max_width('123 5678', 7)
+        '123 \n5678'
+
+    """
 
     is_color = isinstance(string, ColoredString)
 
     if is_color:
-        offset = 10
         string_copy = string._new('')
-    else:
-        offset = 0
-        
+        string = string.s
+
     stack = tsplit(string, NEWLINES)
 
     for i, substring in enumerate(stack):
@@ -56,31 +67,36 @@ def max_width(string, cols, separator='\n'):
         _row_i = 0
 
         for word in row:
-            if (len(_row[_row_i]) + len(word)) < (cols + offset):
+            if (len(_row[_row_i]) + len(word)) <= cols:
                 _row[_row_i] += word
                 _row[_row_i] += ' '
                 
-            elif len(word) > (cols - offset):
+            elif len(word) > cols:
 
                 # ensure empty row
                 if len(_row[_row_i]):
+                    _row[_row_i] = _row[_row_i].rstrip()
                     _row.append('')
                     _row_i += 1
 
-                chunks = schunk(word, (cols + offset))
+                chunks = schunk(word, cols)
                 for i, chunk in enumerate(chunks):
                     if not (i + 1) == len(chunks):
                         _row[_row_i] += chunk
+                        _row[_row_i] = _row[_row_i].rstrip()
                         _row.append('')
                         _row_i += 1
                     else:
                         _row[_row_i] += chunk
                         _row[_row_i] += ' '
             else:
+                _row[_row_i] = _row[_row_i].rstrip()
                 _row.append('')
                 _row_i += 1
                 _row[_row_i] += word
                 _row[_row_i] += ' '
+        else:
+            _row[_row_i] = _row[_row_i].rstrip()
 
         _row = map(str, _row)
         _stack.append(separator.join(_row))
