@@ -110,6 +110,10 @@ class ColoredString(object):
     def __mul__(self, other):
         return (self.color_str * other)
 
+    def __getitem__(self, key):
+        left, right = self.color_str.split(self.s)
+        return "%s%s%s" % (left, self.s[key], right)
+
     def _new(self, s):
         return ColoredString(self.color, s)
 
