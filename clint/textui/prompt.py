@@ -44,9 +44,9 @@ def yn(prompt, default='y', batch=False):
             input = ''
 
         # If input is empty default choice is assumed
-        # so we return True
+        # so we fake it was typed
         if input == '':
-            return True
+            input = default
 
         # Given 'yes' as input if default choice is y
         # then return True, False otherwise
