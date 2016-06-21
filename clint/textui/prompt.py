@@ -48,15 +48,13 @@ def yn(prompt, default='y', batch=False):
         if input == '':
             input = default
 
-        # Given 'yes' as input if default choice is y
-        # then return True, False otherwise
+        # Given 'yes' as input (or default) return True, False otherwise
         if match('y(?:es)?', input, I):
-            return True if default == 'y' else False
+            return True
 
-        # Given 'no' as input if default choice is n
-        # then return True, False otherwise
+        # Given 'no' as input (or defaualt) return True, False otherwise
         elif match('n(?:o)?', input, I):
-            return True if default == 'n' else False
+            return False
 
 
 def query(prompt, default='', validators=None, batch=False):
