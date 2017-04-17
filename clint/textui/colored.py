@@ -123,6 +123,28 @@ def clean(s):
 
     return txt
 
+"""
+example call: colored.colored_text('Dan', 2)
+
+prints 'Dan' in the color green
+"""
+def colored_text(string, color):
+    if color == 0:
+        return black(string)
+    elif color == 1:
+        return red(string)
+    elif color == 2:
+        return green(string)
+    elif color == 3:
+        return yellow(string)
+    elif color == 4:
+        return blue(string)
+    elif color == 5:
+        return magenta(string)
+    elif color == 6:
+        return cyan(string)
+    elif color == 7:
+        return white(string)
 
 def black(string, always=False, bold=False):
     return ColoredString('BLACK', string, always_color=always, bold=bold)
