@@ -1,4 +1,3 @@
-
 import re
 import sys
 
@@ -157,7 +156,7 @@ class AnsiToWin32(object):
     def extract_params(self, paramstring):
         def split(paramstring):
             for p in paramstring.split(';'):
-                if p != '':
+                if p:
                     yield int(p)
         return tuple(split(paramstring))
 
