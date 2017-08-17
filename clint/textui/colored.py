@@ -42,7 +42,10 @@ class ColoredString(object):
     """Enhanced string for __len__ operations on Colored output."""
     def __init__(self, color, s, always_color=False, bold=False):
         super(ColoredString, self).__init__()
-        self.s = s
+        if not PY3 and isinstance(s, unicode):
+            self.s = s.encode('utf-8')
+        else:
+            self.s = s
         self.color = color
         self.always_color = always_color
         self.bold = bold
@@ -93,10 +96,7 @@ class ColoredString(object):
         __str__ = __unicode__
     else:
         def __str__(self):
-            value = self.color_str
-            if isinstance(value, bytes):
-                return value
-            return value.encode('utf8')
+            return self.color_str
 
     def __iter__(self):
         return iter(self.color_str)

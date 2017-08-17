@@ -18,25 +18,25 @@ class ClintTestCase(unittest.TestCase):
         pass
 
 class ColoredStringTestCase(unittest.TestCase):
-    
+
     def setUp(self):
         from clint.textui.colored import ColoredString
-    
+
     def tearDown(self):
         pass
-    
+
     def test_split(self):
         from clint.textui.colored import ColoredString
         new_str = ColoredString('red', "hello world")
         output = new_str.split()
         assert output[0].s == "hello"
-    
+
     def test_find(self):
         from clint.textui.colored import ColoredString
         new_str = ColoredString('blue', "hello world")
         output = new_str.find('h')
         self.assertEqual(output, 0)
-        
+
     def test_replace(self):
         from clint.textui.colored import ColoredString
         new_str = ColoredString('green', "hello world")
@@ -49,13 +49,43 @@ class ColoredStringTestCase(unittest.TestCase):
         new_str = ColoredString('RED', '\xe4')
         assert '\xe4' in str(new_str)
         from clint.textui import puts
-        puts(new_str)
 
     def test_clint_force_color_env_var(self):
         from clint.textui.colored import ColoredString
         os.environ['CLINT_FORCE_COLOR'] = "1"
         new_str = ColoredString('RED', 'hello world')
         assert new_str.always_color == True
+
+    def test_clint_unicode_radd(self):
+        from clint.textui.colored import ColoredString
+        inp_str = u'hello \u263A'
+        new_str = u'' + ColoredString('RED', inp_str)
+        assert inp_str.encode('utf-8') in new_str
+
+
+class TextuiFormatterTestCase(unittest.TestCase):
+
+    def test_max_width(self):
+
+        def _test_n_rows_width(ins, rows, n_rows, max_width):
+            ins.assertEqual(len(rows), n_rows)
+            for row in rows:
+                ins.assertLessEqual(len(row), max_width)
+
+        from clint.textui.formatters import max_width
+        from clint.textui import colored
+        # normal text
+        text = ' '.join(['XXX'] * 3)
+        rows = max_width(text, 6).split('\n')
+        _test_n_rows_width(self, rows, 3, 6)
+        rows = max_width(text, 7).split('\n')
+        _test_n_rows_width(self, rows, 2, 7)
+        # colored text
+        c_text = colored.yellow(text)
+        rows = max_width(c_text, 6).split('\n')
+        _test_n_rows_width(self, rows, 3, 6)
+        rows = max_width(c_text, 7).split('\n')
+        _test_n_rows_width(self, rows, 2, 7)
 
 
 if __name__ == '__main__':
