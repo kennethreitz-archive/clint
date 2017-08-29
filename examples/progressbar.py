@@ -14,7 +14,12 @@ from clint.textui import progress
 if __name__ == '__main__':
     for i in progress.bar(range(100)):
         sleep(random() * 0.2)
-        
+
+    for i in progress.bar(
+            range(50), label='custom format',
+            format_str='{label} <{bar}> {total} of {completed}, ETA: {eta}'):
+        sleep(random() * 0.2)
+
     with progress.Bar(label="nonlinear", expected_size=10) as bar:
         last_val = 0
         for val in (1,2,3,9,10):

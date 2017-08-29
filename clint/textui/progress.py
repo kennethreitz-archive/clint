@@ -39,7 +39,8 @@ class Bar(object):
         return False  # we're not suppressing exceptions
 
     def __init__(self, label='', width=32, hide=None, empty_char=BAR_EMPTY_CHAR,
-                 filled_char=BAR_FILLED_CHAR, expected_size=None, every=1):
+                 filled_char=BAR_FILLED_CHAR, expected_size=None, every=1,
+                 format_str=None):
         self.label = label
         self.width = width
         self.hide = hide
@@ -51,6 +52,7 @@ class Bar(object):
                 self.hide = True
         self.empty_char =    empty_char
         self.filled_char =   filled_char
+        self.format_str =    format_str
         self.expected_size = expected_size
         self.every =         every
         self.start =         time.time()
@@ -81,10 +83,20 @@ class Bar(object):
         if not self.hide:
             if ((progress % self.every) == 0 or      # True every "every" updates
                 (progress == self.expected_size)):   # And when we're done
-                STREAM.write(BAR_TEMPLATE % (
-                    self.label, self.filled_char * x,
-                    self.empty_char * (self.width - x), progress,
-                    self.expected_size, self.etadisp))
+                if self.format_str is None:
+                    progress_str = BAR_TEMPLATE % (
+                        self.label, self.filled_char * x,
+                        self.empty_char * (self.width - x), progress,
+                        self.expected_size, self.etadisp)
+                else:
+                    # The template would be:
+                    # format_str = '{label}[{bar}] {completed}/{total} - {eta}'
+                    bar = '%s%s' % (self.filled_char * x,
+                                    self.empty_char * (self.width - x))
+                    progress_str = self.format_str.format(
+                        label=self.label, bar=bar, completed=progress,
+                        total=self.expected_size, eta=self.etadisp) + '\r'
+                STREAM.write(progress_str)
                 STREAM.flush()
 
     def done(self):
@@ -92,10 +104,20 @@ class Bar(object):
         elapsed_disp = self.format_time(self.elapsed)
         if not self.hide:
             # Print completed bar with elapsed time
-            STREAM.write(BAR_TEMPLATE % (
-                self.label, self.filled_char * self.width,
-                self.empty_char * 0, self.last_progress,
-                self.expected_size, elapsed_disp))
+            if self.format_str is None:
+                progress_str = BAR_TEMPLATE % (
+                    self.label, self.filled_char * self.width,
+                    self.empty_char * 0, self.last_progress,
+                    self.expected_size, elapsed_disp)
+            else:
+                # The template would be:
+                # format_str = '{label}[{bar}] {completed}/{total} - {eta}'
+                bar = '%s%s' % (self.filled_char * self.width,
+                                self.empty_char * 0)
+                progress_str = self.format_str.format(
+                    label=self.label, bar=bar, completed=self.last_progress,
+                    total=self.expected_size, eta=elapsed_disp) + '\r'
+            STREAM.write(progress_str)
             STREAM.write('\n')
             STREAM.flush()
 
@@ -104,14 +126,15 @@ class Bar(object):
 
 
 def bar(it, label='', width=32, hide=None, empty_char=BAR_EMPTY_CHAR,
-        filled_char=BAR_FILLED_CHAR, expected_size=None, every=1):
+        filled_char=BAR_FILLED_CHAR, expected_size=None, every=1,
+        format_str=None):
     """Progress iterator. Wrap your iterables with it."""
 
     count = len(it) if expected_size is None else expected_size
 
     with Bar(label=label, width=width, hide=hide, empty_char=BAR_EMPTY_CHAR,
-             filled_char=BAR_FILLED_CHAR, expected_size=count, every=every) \
-            as bar:
+             filled_char=BAR_FILLED_CHAR, expected_size=count, every=every,
+             format_str=format_str) as bar:
         for i, item in enumerate(it):
             yield item
             bar.show(i + 1)
@@ -139,7 +162,7 @@ def dots(it, label='', hide=None, every=1):
     STREAM.flush()
 
 
-def mill(it, label='', hide=None, expected_size=None, every=1):
+def mill(it, label='', hide=None, expected_size=None, every=1, format_str=None):
     """Progress iterator. Prints a mill while iterating over the items."""
 
     def _mill_char(_i):
@@ -153,8 +176,16 @@ def mill(it, label='', hide=None, expected_size=None, every=1):
             if ((_i % every) == 0 or         # True every "every" updates
                 (_i == count)):            # And when we're done
 
-                STREAM.write(MILL_TEMPLATE % (
-                    label, _mill_char(_i), _i, count))
+                if format_str is None:
+                    progress_str = MILL_TEMPLATE % (
+                        label, _mill_char(_i), _i, count)
+                else:
+                    # The template would be:
+                    # format_str = '{label} {mill} {completed}/{total}'
+                    progress_str = format_str.format(
+                        label=label, mill=_mill_char(_i), completed=_i,
+                        total=count) + '\r'
+                STREAM.write(progress_str)
                 STREAM.flush()
 
     count = len(it) if expected_size is None else expected_size
