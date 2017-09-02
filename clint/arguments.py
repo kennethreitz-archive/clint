@@ -56,6 +56,10 @@ class Args(object):
         return self.first(x) is not None
 
 
+    def __iter__(self):
+        return iter(self._args)
+
+
     def get(self, x):
         """Returns argument at given index, else none."""
         try:
