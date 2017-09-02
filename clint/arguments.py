@@ -12,7 +12,12 @@ This module provides the CLI argument interface.
 from __future__ import absolute_import
 
 import os
-from sys import argv
+try:
+    from sys import argv
+except ImportError:
+    # Can happen when executing inside LLDB context
+    import sys
+    sys.argv = []
 
 try:
     from collections import OrderedDict
