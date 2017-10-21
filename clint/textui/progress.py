@@ -87,7 +87,10 @@ class Bar(object):
                     self.expected_size, self.etadisp))
                 STREAM.flush()
 
-    def done(self):
+    def done(self, create_new=False):
+        if create_new:
+            return Bar(self.label, self.width, self.hide, self.empty_char,
+                       self.filled_char, self.expected_size, self.every)
         self.elapsed = time.time() - self.start
         elapsed_disp = self.format_time(self.elapsed)
         if not self.hide:
