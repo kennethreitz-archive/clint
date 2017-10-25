@@ -39,7 +39,7 @@ class Bar(object):
         return False  # we're not suppressing exceptions
 
     def __init__(self, label='', width=32, hide=None, empty_char=BAR_EMPTY_CHAR,
-                 filled_char=BAR_FILLED_CHAR, expected_size=None, every=1):
+                 filled_char=BAR_FILLED_CHAR, start_size=0, expected_size=None, every=1):
         self.label = label
         self.width = width
         self.hide = hide
@@ -58,9 +58,9 @@ class Bar(object):
         self.eta =           0
         self.etadelta =      time.time()
         self.etadisp =       self.format_time(self.eta)
-        self.last_progress = 0
+        self.last_progress = start_size
         if (self.expected_size):
-            self.show(0)
+            self.show(start_size)
 
     def show(self, progress, count=None):
         if count is not None:
@@ -104,17 +104,17 @@ class Bar(object):
 
 
 def bar(it, label='', width=32, hide=None, empty_char=BAR_EMPTY_CHAR,
-        filled_char=BAR_FILLED_CHAR, expected_size=None, every=1):
+        filled_char=BAR_FILLED_CHAR, init_count=0, expected_size=None, every=1):
     """Progress iterator. Wrap your iterables with it."""
 
     count = len(it) if expected_size is None else expected_size
 
     with Bar(label=label, width=width, hide=hide, empty_char=empty_char,
-             filled_char=filled_char, expected_size=count, every=every) \
-            as bar:
+             filled_char=filled_char, start_size=init_count, 
+             expected_size=count, every=every) as bar:
         for i, item in enumerate(it):
             yield item
-            bar.show(i + 1)
+            bar.show(init_count + i + 1)
 
 
 def dots(it, label='', hide=None, every=1):
