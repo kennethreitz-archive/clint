@@ -10,6 +10,7 @@ Core TextUI functionality for input validation.
 
 from __future__ import absolute_import
 
+import ast
 import os
 import sys
 import re
@@ -19,9 +20,9 @@ PY2 = sys.version_info[0] == 2
 PY3 = sys.version_info[0] == 3
 
 if PY3:
-    string_types = str,
+    STRING_TYPES = str,
 else:
-    string_types = basestring,
+    STRING_TYPES = basestring,
 
 
 class ValidationError(Exception):
@@ -43,7 +44,7 @@ class RegexValidator(object):
             self.message = message
 
         # Compile the regex if it was not passed pre-compiled.
-        if isinstance(self.regex, string_types):
+        if isinstance(self.regex, STRING_TYPES):
             self.regex = re.compile(self.regex)
 
     def __call__(self, value):
@@ -120,3 +121,64 @@ class OptionValidator(object):
         else:
             raise ValidationError(self.message)
 
+
+class BooleanValidator(object):
+    message = 'Enter True or False.'
+    BOOLEAN_MAP = {
+        'true': True,
+        't': True,
+        '1': True,
+        'false': False,
+        'f': False,
+        '0': False,
+    }
+
+    def __init__(self, message=None):
+        if message is not None:
+            self.message = message
+
+    def __call__(self, value):
+        """
+        Validates that the input is a boolean.
+        """
+        value = value.lower()
+        if value in self.BOOLEAN_MAP:
+            return self.BOOLEAN_MAP[value]
+        else:
+            raise ValidationError(self.message)
+
+
+class FloatValidator(object):
+    message = 'Enter a valid float.'
+
+    def __init__(self, message=None):
+        if message is not None:
+            self.message = message
+
+    def __call__(self, value):
+        """
+        Validates that the input is a float.
+        """
+        try:
+            return float(value)
+        except ValueError:
+            raise ValidationError(self.message)
+
+
+class ListValidator(object):
+    message = 'Enter a valid list.'
+
+    def __init__(self, message=None):
+        if message is not None:
+            self.message = message
+
+    def __call__(self, value):
+        """
+        Validates that the input is a list.
+        """
+        try:
+            converted_val = ast.literal_eval(value)
+            assert isinstance(converted_val, list)
+            return converted_val
+        except AssertionError:
+            raise ValidationError(self.message)
