@@ -15,7 +15,9 @@ import time
 
 STREAM = sys.stderr
 
-BAR_TEMPLATE = '%s[%s%s] %i/%i - %s\r'
+BAR_TEMPLATE = '{label}[{filled_chars}{empty_chars}] {progress:.2f}/{expected_size:.2f}{unit} - {eta}\r'
+BAR_TEMPLATE_WITH_PERCENT = '{label}[{filled_chars}{empty_chars}] ' \
+                            '{percent:.2f}%({progress:.2f}/{expected_size:.2f}){unit} - {eta}\r'
 MILL_TEMPLATE = '%s %s %i/%i\r'
 
 DOTS_CHAR = '.'
@@ -39,7 +41,8 @@ class Bar(object):
         return False  # we're not suppressing exceptions
 
     def __init__(self, label='', width=32, hide=None, empty_char=BAR_EMPTY_CHAR,
-                 filled_char=BAR_FILLED_CHAR, expected_size=None, every=1):
+                 filled_char=BAR_FILLED_CHAR, expected_size=None, every=1, show_percent: bool = False, unit: str = "",
+                 custom_format: str = None):
         self.label = label
         self.width = width
         self.hide = hide
@@ -49,15 +52,22 @@ class Bar(object):
                 self.hide = not STREAM.isatty()
             except AttributeError:  # output does not support isatty()
                 self.hide = True
-        self.empty_char =    empty_char
-        self.filled_char =   filled_char
+        self.empty_char = empty_char
+        self.filled_char = filled_char
         self.expected_size = expected_size
-        self.every =         every
-        self.start =         time.time()
-        self.ittimes =       []
-        self.eta =           0
-        self.etadelta =      time.time()
-        self.etadisp =       self.format_time(self.eta)
+        self.every = every
+
+        self.show_percent = show_percent
+        self.template = BAR_TEMPLATE_WITH_PERCENT if self.show_percent else BAR_TEMPLATE
+        self.custom_format = custom_format
+        self.template = custom_format if custom_format else self.template
+
+        self.unit = unit
+        self.start = time.time()
+        self.ittimes = []
+        self.eta = 0
+        self.etadelta = time.time()
+        self.etadisp = self.format_time(self.eta)
         self.last_progress = 0
         if (self.expected_size):
             self.show(0)
@@ -72,19 +82,23 @@ class Bar(object):
             self.etadelta = time.time()
             self.ittimes = \
                 self.ittimes[-ETA_SMA_WINDOW:] + \
-                    [-(self.start - time.time()) / (progress+1)]
+                [-(self.start - time.time()) / (progress + 1)]
             self.eta = \
                 sum(self.ittimes) / float(len(self.ittimes)) * \
                 (self.expected_size - progress)
             self.etadisp = self.format_time(self.eta)
         x = int(self.width * progress / self.expected_size)
         if not self.hide:
-            if ((progress % self.every) == 0 or      # True every "every" updates
-                (progress == self.expected_size)):   # And when we're done
-                STREAM.write(BAR_TEMPLATE % (
-                    self.label, self.filled_char * x,
-                    self.empty_char * (self.width - x), progress,
-                    self.expected_size, self.etadisp))
+            if ((progress % self.every) == 0 or  # True every "every" updates
+                    (progress == self.expected_size)):  # And when we're done
+                STREAM.write(
+                    self.template.format(
+                        label=self.label, filled_chars=self.filled_char * x,
+                        empty_chars=self.empty_char * (self.width - x), progress=progress,
+                        expected_size=self.expected_size, eta=self.etadisp,
+                        percent=(progress / self.expected_size) * 100,
+                        unit=self.unit
+                    ))
                 STREAM.flush()
 
     def done(self):
@@ -92,10 +106,13 @@ class Bar(object):
         elapsed_disp = self.format_time(self.elapsed)
         if not self.hide:
             # Print completed bar with elapsed time
-            STREAM.write(BAR_TEMPLATE % (
-                self.label, self.filled_char * self.width,
-                self.empty_char * 0, self.last_progress,
-                self.expected_size, elapsed_disp))
+            STREAM.write(self.template.format(
+                label=self.label, filled_chars=self.filled_char * self.width,
+                empty_chars=0, progress=self.last_progress,
+                expected_size=self.expected_size, eta=self.etadisp,
+                percent=100,
+                unit=self.unit
+            ))
             STREAM.write('\n')
             STREAM.flush()
 
@@ -127,7 +144,7 @@ def dots(it, label='', hide=None, every=1):
 
     for i, item in enumerate(it):
         if not hide:
-            if i % every == 0:         # True every "every" updates
+            if i % every == 0:  # True every "every" updates
                 STREAM.write(DOTS_CHAR)
                 sys.stderr.flush()
 
@@ -150,8 +167,8 @@ def mill(it, label='', hide=None, expected_size=None, every=1):
 
     def _show(_i):
         if not hide:
-            if ((_i % every) == 0 or         # True every "every" updates
-                (_i == count)):            # And when we're done
+            if ((_i % every) == 0 or  # True every "every" updates
+                    (_i == count)):  # And when we're done
 
                 STREAM.write(MILL_TEMPLATE % (
                     label, _mill_char(_i), _i, count))
