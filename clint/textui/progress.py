@@ -42,7 +42,7 @@ class Bar(object):
 
     def __init__(self, label='', width=32, hide=None, empty_char=BAR_EMPTY_CHAR,
                  filled_char=BAR_FILLED_CHAR, expected_size=None, every=1, show_percent= False, unit="",
-                 custom_format: str = None):
+                 custom_format = None):
         self.label = label
         self.width = width
         self.hide = hide
