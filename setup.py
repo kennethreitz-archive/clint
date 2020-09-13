@@ -19,7 +19,7 @@ if sys.argv[-1] == "publish":
     publish()
     sys.exit()
 
-required = ['args']
+required = ['']
 
 setup(
     name='clint',
