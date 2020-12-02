@@ -66,7 +66,7 @@ def query(prompt, default='', validators=None, batch=False, mask_input=False):
         validators = [RegexValidator(r'.+')]
 
     # Let's build the prompt
-    if prompt[-1] is not ' ':
+    if prompt[-1] != ' ':
         prompt += ' '
 
     if default:
