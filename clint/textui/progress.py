@@ -210,8 +210,8 @@ class Bar(object):
 
         self.expected_size = int(num)
         self.line_size = max([
-            len(x) + 10 for x in self.escape_ansi(self.get_text_bar(self.expected_size)).replace('\n', '\r').split('\r')
-        ] + [self.line_size])
+            len(x) for x in self.escape_ansi(self.get_text_bar(self.expected_size)).replace('\n', '\r').split('\r')
+        ] + [self.line_size]) + 16
 
     @classmethod
     def format_bytes_unit(cls, num, suffix="B", start_unit=""):
