@@ -17,7 +17,7 @@ import time
 STREAM = sys.stderr
 
 BAR_TEMPLATE = ('\033[0m \033[32m{label}\033[0m |{filled_chars}\033[38;5;240m{empty_chars}\033[0m| '
-                '\033[32m{percent}\033[33m{progress}/{expected_text}{unit_label}\033[0m | '
+                '\033[32m{percent}\033[0m{percent_spacer}\033[33m{progress}/{expected_text}{unit_label}\033[0m | '
                 '\033[38;5;243m{eta}\033[0m     \r'
                 '\033[0m \033[32m{label}\033[0m |{filled_chars}')
 MILL_TEMPLATE = '%s %s %i/%i\r'
@@ -124,6 +124,7 @@ class Bar(object):
                 expected_text=self.expected_text,
                 eta=self.etadisp,
                 percent=self.format_percent(progress),
+                percent_spacer=" | " if self.show_percent else '',
                 unit_label=self.unit_label
             )
         return ''
@@ -143,6 +144,7 @@ class Bar(object):
                     expected_text=self.expected_text,
                     eta=self.format_time(self.elapsed),
                     percent=self.format_percent(self.last_progress),
+                    percent_spacer=" | " if self.show_percent else '',
                     unit_label=self.unit_label
                 ), True
             )
