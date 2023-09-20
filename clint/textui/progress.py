@@ -153,7 +153,7 @@ class Bar(object):
                 if (STREAM.isatty()):
                     STREAM.write('\r\033[0m')
                     STREAM.flush()
-                    STREAM.write((' ' * (self.line_size + 4)))
+                    STREAM.write((' ' * self.line_size))
                     STREAM.write('\r\033[0m')
                     STREAM.flush()
             except AttributeError:  # output does not support isatty()
@@ -210,7 +210,7 @@ class Bar(object):
 
         self.expected_size = int(num)
         self.line_size = max([
-            len(x) for x in self.escape_ansi(self.get_text_bar(self.expected_size)).replace('\n', '\r').split('\r')
+            len(x) + 10 for x in self.escape_ansi(self.get_text_bar(self.expected_size)).replace('\n', '\r').split('\r')
         ] + [self.line_size])
 
     @classmethod
