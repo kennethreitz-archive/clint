@@ -74,6 +74,7 @@ class Bar(object):
         self.unit = unit
         self.unit_label = f' {unit_label}' if unit_label is not None and unit_label.strip() != '' else ''
         self.last_text_bar = ''
+        self.line_size = 100
 
         if disable_color:
             self.template = self.escape_ansi(self.template)
@@ -147,8 +148,7 @@ class Bar(object):
 
     def clear_line(self):
         if not self.hide:
-            x = len(self.escape_ansi(self.get_text_bar(self.expected_size)))
-            self.write_output((' ' * (x + 4)) + '\r', new_line=False)
+            self.write_output('\r' + (' ' * (self.line_size + 4)) + '\r', new_line=False)
 
     # Expose method to permit print a new line (in stdout) without trash chars at screen
     def print_line(self, text=''):
@@ -200,6 +200,9 @@ class Bar(object):
                 started = True
 
         self.expected_size = int(num)
+        self.line_size = max([
+            len(x) for x in self.escape_ansi(self.get_text_bar(self.expected_size)).split('\n')
+        ] + [self.line_size])
 
     @classmethod
     def format_bytes_unit(cls, num, suffix="B", start_unit=""):
