@@ -19,7 +19,7 @@ if __name__ == '__main__':
 
     with progress.Bar(label="Bytes formatted", expected_size=2, unit='Gb', unit_label='Size',
                       show_percent=True, every=1024 * 10) as bar:
-        for val in range(0, 2 * 1024 * 1024 * 1024, 3 * 1024):
+        for val in range(0, 2 * 1024 * 1024 * 1024, 1024):
             bar.show(val)
 
     with progress.Bar(label="nonlinear", expected_size=10) as bar:

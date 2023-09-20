@@ -36,6 +36,9 @@ ETA_INTERVAL = 1
 # average
 ETA_SMA_WINDOW = 9
 
+# How long to wait before write
+TIME_INTERVAL = 0.3
+
 
 class Bar(object):
     def __enter__(self):
@@ -66,6 +69,7 @@ class Bar(object):
         self.ittimes = []
         self.eta = 0
         self.elapsed = 0
+        self.next_status = time.time()
         self.etadelta = time.time()
         self.etadisp = self.format_time(self.eta)
         self.last_progress = 0
@@ -103,11 +107,14 @@ class Bar(object):
                 sum(self.ittimes) / float(len(self.ittimes)) * \
                 (self.expected_size - progress)
             self.etadisp = self.format_time(self.eta)
-        x = int(self.width * progress / self.expected_size)
         if not self.hide:
-            if ((progress % self.every) == 0 or  # True every "every" updates
-                    (progress == self.expected_size)):  # And when we're done
+            tn = time.time()
+            if ((
+                    (progress % self.every) == 0 and  # True every "every" updates
+                    (tn >= self.next_status)          # and verify the time delay (to prevent a lot of screen write)
+            ) or (progress == self.expected_size)):  # And when we're done
 
+                self.next_status = tn + TIME_INTERVAL
                 txt = self.get_text_bar(progress)
                 if txt != self.last_text_bar:  # write only when we have changes in text
                     self.last_text_bar = txt
