@@ -129,6 +129,7 @@ class Bar(object):
         return ''
 
     def done(self):
+        self.clear_line()
         self.elapsed = time.time() - self.start
         if not self.hide:
             # Print completed bar with elapsed time
