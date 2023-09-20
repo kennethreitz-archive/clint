@@ -130,8 +130,8 @@ class Bar(object):
 
     def done(self):
         self.clear_line(force=True)
-        self.elapsed = time.time() - self.start
         if not self.hide:
+            self.elapsed = time.time() - self.start
             # Print completed bar with elapsed time
             x = int(self.width * self.last_progress / self.expected_size)
             self.write_output(
@@ -151,7 +151,11 @@ class Bar(object):
         if not self.hide or force:
             try:
                 if (STREAM.isatty()):
-                    self.write_output('\r' + (' ' * (self.line_size + 4)) + '\r', new_line=False)
+                    STREAM.write('\r')
+                    STREAM.flush()
+                    STREAM.write((' ' * (self.line_size + 4)))
+                    STREAM.write('\r')
+                    STREAM.flush()
             except AttributeError:  # output does not support isatty()
                 pass
 
