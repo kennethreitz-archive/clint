@@ -129,7 +129,7 @@ class Bar(object):
         return ''
 
     def done(self):
-        self.clear_line()
+        self.clear_line(force=True)
         self.elapsed = time.time() - self.start
         if not self.hide:
             # Print completed bar with elapsed time
@@ -147,14 +147,18 @@ class Bar(object):
                 ), True
             )
 
-    def clear_line(self):
-        if not self.hide:
-            self.write_output('\r' + (' ' * (self.line_size + 4)) + '\r', new_line=False)
+    def clear_line(self, force=False):
+        if not self.hide or force:
+            try:
+                if (STREAM.isatty()):
+                    self.write_output('\r' + (' ' * (self.line_size + 4)) + '\r', new_line=False)
+            except AttributeError:  # output does not support isatty()
+                pass
 
     # Expose method to permit print a new line (in stdout) without trash chars at screen
     def print_line(self, text=''):
         self.clear_line()
-        print(text)
+        print(text, flush=True)
         self.write_output(self.get_text_bar(self.last_progress))
 
     def format_percent(self, progress):
