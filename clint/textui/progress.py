@@ -151,10 +151,10 @@ class Bar(object):
         if not self.hide or force:
             try:
                 if (STREAM.isatty()):
-                    STREAM.write('\r')
+                    STREAM.write('\r\033[0m')
                     STREAM.flush()
                     STREAM.write((' ' * (self.line_size + 4)))
-                    STREAM.write('\r')
+                    STREAM.write('\r\033[0m')
                     STREAM.flush()
             except AttributeError:  # output does not support isatty()
                 pass
