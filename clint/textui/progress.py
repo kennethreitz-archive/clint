@@ -99,7 +99,7 @@ class Bar(object):
         if hide is None:
             self.hide = not self.isatty
 
-        if no_tty_every_percent is not None and isinstance(no_tty_every_percent, int):
+        if not self.isatty and no_tty_every_percent is not None and isinstance(no_tty_every_percent, int):
             self.no_tty_every_percent = no_tty_every_percent
 
             if self.no_tty_every_percent < 1:
@@ -145,7 +145,7 @@ class Bar(object):
                     (tn >= self.next_status)          # and verify the time delay (to prevent a lot of screen write)
             ) or (progress == self.expected_size)):  # And when we're done
 
-                self.next_status = tn + TIME_INTERVAL
+                self.next_status = (tn + TIME_INTERVAL) if self.no_tty_every_percent is None else 0
                 txt = self.get_text_bar(progress)
                 if txt != self.last_text_bar:  # write only when we have changes in text
                     self.last_text_bar = txt
