@@ -14,13 +14,13 @@ from clint.textui import progress
 
 
 if __name__ == '__main__':
+    with progress.Bar(label="Bytes formatted", expected_size=2, unit='Gb', unit_label='Size',
+                      show_percent=True, every=1024, no_tty_every_percent=10) as bar:
+        for val in range(0, 2 * 1024 * 1024 * 1024, 100):
+            bar.show(val)
+
     for i in progress.bar(range(100)):
         sleep(random() * 0.2)
-
-    with progress.Bar(label="Bytes formatted", expected_size=2, unit='Gb', unit_label='Size',
-                      show_percent=True, every=1024 * 10) as bar:
-        for val in range(0, 2 * 1024 * 1024 * 1024, 1024):
-            bar.show(val)
 
     with progress.Bar(label="nonlinear", expected_size=10) as bar:
         last_val = 0

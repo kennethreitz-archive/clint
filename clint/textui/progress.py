@@ -10,6 +10,8 @@ This module provides the progressbar functionality.
 
 from __future__ import absolute_import
 
+import os
+import sys
 import re
 import sys
 import time
@@ -39,6 +41,14 @@ ETA_SMA_WINDOW = 9
 # How long to wait before write
 TIME_INTERVAL = 0.3
 
+if os.name == 'nt':
+    import msvcrt
+    import ctypes
+
+    class _CursorInfo(ctypes.Structure):
+        _fields_ = [("size", ctypes.c_int),
+                    ("visible", ctypes.c_byte)]
+
 
 class Bar(object):
     def __enter__(self):
@@ -50,16 +60,11 @@ class Bar(object):
 
     def __init__(self, label='', width=32, hide=None, empty_char=BAR_EMPTY_CHAR,
                  filled_char=BAR_FILLED_CHAR, expected_size=None, every=1,
-                 show_percent=False, unit='', unit_label=None, custom_format=None, disable_color=False):
+                 show_percent=False, unit='', unit_label=None, custom_format=None, disable_color=False,
+                 no_tty_every_percent=None, auto_hide_cursor=True):
         self.label = label
         self.width = width
         self.hide = hide
-        # Only show bar in terminals by default (better for piping, logging etc.)
-        if hide is None:
-            try:
-                self.hide = not STREAM.isatty()
-            except AttributeError:  # output does not support isatty()
-                self.hide = True
         self.empty_char = ' ' if disable_color and empty_char == BAR_EMPTY_CHAR else empty_char
         self.filled_char = '#' if disable_color and filled_char == BAR_FILLED_CHAR else filled_char
         self.expected_size = expected_size
@@ -79,6 +84,28 @@ class Bar(object):
         self.unit_label = f' {unit_label}' if unit_label is not None and unit_label.strip() != '' else ''
         self.last_text_bar = ''
         self.line_size = 100
+        self.no_tty_every_percent = None
+        self.auto_hide_cursor = auto_hide_cursor
+        self.cursor_hidden = False
+        try:
+            if (STREAM.isatty()):
+                self.isatty = True
+            else:
+                self.isatty = False
+        except AttributeError:  # output does not support isatty()
+            self.isatty = False
+
+        # Only show bar in terminals by default (better for piping, logging etc.)
+        if hide is None:
+            self.hide = not self.isatty
+
+        if no_tty_every_percent is not None and isinstance(no_tty_every_percent, int):
+            self.no_tty_every_percent = no_tty_every_percent
+
+            if self.no_tty_every_percent < 1:
+                self.no_tty_every_percent = 1
+            elif self.no_tty_every_percent > 100:
+                self.no_tty_every_percent = 100
 
         if disable_color:
             self.template = self.escape_ansi(self.template)
@@ -96,18 +123,22 @@ class Bar(object):
         if self.expected_size is None:
             raise Exception("expected_size not initialized")
         self.last_progress = progress
+        if self.auto_hide_cursor and not self.cursor_hidden:
+            self.hide_cursor()
+            self.cursor_hidden = True
         if progress > self.expected_size:
             self.expected_size = progress
-        if (time.time() - self.etadelta) > ETA_INTERVAL:
-            self.etadelta = time.time()
-            self.ittimes = \
-                self.ittimes[-ETA_SMA_WINDOW:] + \
-                [-(self.start - time.time()) / (progress + 1)]
-            self.eta = \
-                sum(self.ittimes) / float(len(self.ittimes)) * \
-                (self.expected_size - progress)
-            self.etadisp = self.format_time(self.eta)
-        if not self.hide:
+        if not self.hide or self.no_tty_every_percent is not None:
+            if (time.time() - self.etadelta) > ETA_INTERVAL:
+                self.etadelta = time.time()
+                self.ittimes = \
+                    self.ittimes[-ETA_SMA_WINDOW:] + \
+                    [-(self.start - time.time()) / (progress + 1)]
+                self.eta = \
+                    sum(self.ittimes) / float(len(self.ittimes)) * \
+                    (self.expected_size - progress)
+                self.etadisp = self.format_time(self.eta)
+
             tn = time.time()
             if ((
                     (progress % self.every) == 0 and  # True every "every" updates
@@ -118,10 +149,15 @@ class Bar(object):
                 txt = self.get_text_bar(progress)
                 if txt != self.last_text_bar:  # write only when we have changes in text
                     self.last_text_bar = txt
-                    self.write_output(txt)
+                    p = int((progress / self.expected_size) * 100)
+                    if not self.hide or (p % 10) == 0:
+                        self.write_output(
+                            text=txt,
+                            stdout=self.hide and self.no_tty_every_percent is not None
+                        )
 
     def get_text_bar(self, progress):
-        if not self.hide:
+        if not self.hide or self.no_tty_every_percent is not None:
             x = int(self.width * progress / self.expected_size)
             return self.template.format(
                 label=self.label,
@@ -138,7 +174,7 @@ class Bar(object):
 
     def done(self):
         self.clear_line(force=True)
-        if not self.hide:
+        if not self.hide or self.no_tty_every_percent is not None:
             self.elapsed = time.time() - self.start
             # Print completed bar with elapsed time
             x = int(self.width * self.last_progress / self.expected_size)
@@ -153,20 +189,20 @@ class Bar(object):
                     percent=self.format_percent(self.last_progress),
                     percent_spacer=" | " if self.show_percent else '',
                     unit_label=self.unit_label
-                ), True
+                ),
+                new_line=True,
+                stdout=self.hide and self.no_tty_every_percent is not None
             )
+        if self.auto_hide_cursor and self.cursor_hidden:
+            self.show_cursor()
 
     def clear_line(self, force=False):
-        if not self.hide or force:
-            try:
-                if (STREAM.isatty()):
-                    STREAM.write('\r\033[0m')
-                    STREAM.flush()
-                    STREAM.write((' ' * self.line_size))
-                    STREAM.write('\r\033[0m')
-                    STREAM.flush()
-            except AttributeError:  # output does not support isatty()
-                pass
+        if (not self.hide or force) and self.isatty:
+            STREAM.write('\r\033[0m')
+            STREAM.flush()
+            STREAM.write((' ' * self.line_size))
+            STREAM.write('\r\033[0m')
+            STREAM.flush()
 
     # Expose method to permit print a new line (in stdout) without trash chars at screen
     def print_line(self, text=''):
@@ -180,29 +216,6 @@ class Bar(object):
 
         p = (progress / self.expected_size) * 100
         return f' {p:.2f}% '
-
-    @classmethod
-    def format_time(cls, seconds):
-        if seconds > 60 * 60:  # 1 hour
-            return time.strftime(TIME_FMT_H, time.gmtime(seconds))
-        elif seconds > 60:  # 1 minute
-            return time.strftime(TIME_FMT_M, time.gmtime(seconds))
-        else:
-            return time.strftime(TIME_FMT_S, time.gmtime(seconds))
-
-    @classmethod
-    def write_output(cls, text='', new_line=False):
-        STREAM.write(text)
-        if new_line:
-            STREAM.write('\n')
-        STREAM.flush()
-
-    @classmethod
-    def format_unit(cls, num=0, unit=''):
-        if unit.lower() in ["b", "kb", "mb", "gb", "tb", "pb", "ep", "zb"]:
-            return cls.format_bytes_unit(num, start_unit=unit.upper().replace('B', ''))
-        else:
-            return f"{num:.0f}"
 
     def calculate_expected(self):
         self.expected_text = self.format_unit(self.expected_size, self.unit)
@@ -223,6 +236,34 @@ class Bar(object):
         ] + [self.line_size]) + 16
 
     @classmethod
+    def format_time(cls, seconds):
+        if seconds > 60 * 60:  # 1 hour
+            return time.strftime(TIME_FMT_H, time.gmtime(seconds))
+        elif seconds > 60:  # 1 minute
+            return time.strftime(TIME_FMT_M, time.gmtime(seconds))
+        else:
+            return time.strftime(TIME_FMT_S, time.gmtime(seconds))
+
+    @classmethod
+    def write_output(cls, text='', new_line=False, stdout=False):
+        if stdout:
+            sys.stdout.write(text)
+            sys.stdout.write('\r\n')
+            sys.stdout.flush()
+        else:
+            STREAM.write(text)
+            if new_line:
+                STREAM.write('\n')
+            STREAM.flush()
+
+    @classmethod
+    def format_unit(cls, num=0, unit=''):
+        if unit.lower() in ["b", "kb", "mb", "gb", "tb", "pb", "ep", "zb"]:
+            return cls.format_bytes_unit(num, start_unit=unit.upper().replace('B', ''))
+        else:
+            return f"{num:.0f}"
+
+    @classmethod
     def format_bytes_unit(cls, num, suffix="B", start_unit=""):
         started = False
         for unit in ["", "K", "M", "G", "T", "P", "E", "Z"]:
@@ -240,6 +281,30 @@ class Bar(object):
 
         pattern = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -/]*[@-~]')
         return pattern.sub('', text)
+
+    @classmethod
+    def hide_cursor(cls):
+        if os.name == 'nt':
+            ci = _CursorInfo()
+            handle = ctypes.windll.kernel32.GetStdHandle(-11)
+            ctypes.windll.kernel32.GetConsoleCursorInfo(handle, ctypes.byref(ci))
+            ci.visible = False
+            ctypes.windll.kernel32.SetConsoleCursorInfo(handle, ctypes.byref(ci))
+        elif os.name == 'posix':
+            sys.stdout.write("\033[?25l")
+            sys.stdout.flush()
+
+    @classmethod
+    def show_cursor(cls):
+        if os.name == 'nt':
+            ci = _CursorInfo()
+            handle = ctypes.windll.kernel32.GetStdHandle(-11)
+            ctypes.windll.kernel32.GetConsoleCursorInfo(handle, ctypes.byref(ci))
+            ci.visible = True
+            ctypes.windll.kernel32.SetConsoleCursorInfo(handle, ctypes.byref(ci))
+        elif os.name == 'posix':
+            sys.stdout.write("\033[?25h")
+            sys.stdout.flush()
 
 
 def bar(it, label='', width=32, hide=None, empty_char=BAR_EMPTY_CHAR,
