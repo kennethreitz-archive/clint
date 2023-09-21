@@ -83,6 +83,7 @@ class Bar(object):
         self.unit = unit
         self.unit_label = f' {unit_label}' if unit_label is not None and unit_label.strip() != '' else ''
         self.last_text_bar = ''
+        self.next_percent = 0
         self.line_size = 100
         self.no_tty_every_percent = None
         self.auto_hide_cursor = auto_hide_cursor
@@ -106,6 +107,8 @@ class Bar(object):
                 self.no_tty_every_percent = 1
             elif self.no_tty_every_percent > 100:
                 self.no_tty_every_percent = 100
+
+            self.next_percent = self.no_tty_every_percent
 
         if disable_color:
             self.template = self.escape_ansi(self.template)
@@ -150,7 +153,12 @@ class Bar(object):
                 if txt != self.last_text_bar:  # write only when we have changes in text
                     self.last_text_bar = txt
                     p = int((progress / self.expected_size) * 100)
-                    if not self.hide or (p % 10) == 0:
+                    if not self.hide or ((p % self.no_tty_every_percent) == 0 and p >= self.next_percent):
+                        self.next_percent = (
+                            0
+                            if self.isatty or self.no_tty_every_percent is None or self.no_tty_every_percent <= 0 else
+                            (int(p / self.no_tty_every_percent) * self.no_tty_every_percent) + self.no_tty_every_percent
+                        )
                         self.write_output(
                             text=txt,
                             stdout=self.hide and self.no_tty_every_percent is not None
