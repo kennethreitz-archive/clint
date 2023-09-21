@@ -18,10 +18,9 @@ import time
 
 STREAM = sys.stderr
 
-BAR_TEMPLATE = ('\033[0m \033[32m{label}\033[0m |{filled_chars}\033[38;5;240m{empty_chars}\033[0m| '
+BAR_TEMPLATE = ('\033[0m\033[32m{label}\033[0m |{filled_chars}\033[38;5;240m{empty_chars}\033[0m| '
                 '\033[32m{percent}\033[0m{percent_spacer}\033[33m{progress}/{expected_text}{unit_label}\033[0m | '
-                '\033[38;5;243m{eta}\033[0m     \r'
-                '\033[0m \033[32m{label}\033[0m |{filled_chars}')
+                '\033[38;5;243m{eta}\033[0m')
 MILL_TEMPLATE = '%s %s %i/%i\r'
 TIME_FMT_H = 'ETA: %Hh%Mm'
 TIME_FMT_M = 'ETA: %Mm%Ss'
@@ -113,7 +112,12 @@ class Bar(object):
         if disable_color:
             self.template = self.escape_ansi(self.template)
 
-        self.template = '\r' + self.template.strip('\r')
+        self.template = self.template.strip('\n').strip('\r').rstrip(' ')
+        if hide is None and self.isatty:
+            self.template = '\r' + self.template.strip('\r').rstrip(' ')
+            idx = self.template.find('{filled_chars}')
+            if idx >= 0:
+                self.template += (' ' * 4) + '\r' + self.template[0:idx + 14]
 
         if self.expected_size:
             self.calculate_expected()
