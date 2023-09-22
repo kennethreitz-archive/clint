@@ -13,14 +13,36 @@ from __future__ import absolute_import
 import os
 import sys
 import re
-import sys
 import time
 
 STREAM = sys.stderr
 
-BAR_TEMPLATE = ('\033[0m\033[38;5;39m{label}\033[0m |{filled_chars}\033[38;5;240m{empty_chars}\033[0m| '
-                '\033[38;5;40m{percent}\033[0m{percent_spacer}\033[38;5;214m{progress}/{expected_text}{unit_label}\033[0m | '
-                '\033[38;5;243m{eta}\033[0m')
+# Color schema compatible with windows
+BAR_TEMPLATE = ('\033[0m\033[36m{label}\033[0m |{filled_chars}\033[2m\033[90m{empty_chars}\033[0m| '
+                '\033[32m{percent}\033[0m{percent_spacer}\033[33m{progress}/{expected_text}{unit_label}\033[0m | '
+                '\033[2m\033[90m{eta}\033[0m')
+
+# Replace table to unix systems
+COLOR_TABLE = {
+    '\033[30m': '\033[30m',        # Black
+    '\033[31m': '\033[38;5;1m',    # Red
+    '\033[32m': '\033[38;5;40m',   # Green
+    '\033[33m': '\033[38;5;214m',  # Yellow
+    '\033[34m': '\033[38;5;27m',   # Blue
+    '\033[35m': '\033[38;5;5m',    # Magenta
+    '\033[36m': '\033[38;5;75m',   # Cyan
+    '\033[37m': '\033[38;5;253m',  # White
+    '\033[90m': '\033[38;5;247m',  # Bright Black (Gray)
+    '\033[91m': '\033[38;5;52m',   # Bright Red
+    '\033[92m': '\033[38;5;34m',   # Bright Green
+    '\033[93m': '\033[38;5;220m',  # Bright Yellow
+    '\033[94m': '\033[38;5;27m',   # Bright Blue
+    '\033[95m': '\033[38;5;170m',  # Bright Magenta
+    '\033[96m': '\033[38;5;39m',   # Bright Cyan
+    '\033[97m': '\033[38;5;255m',  # Bright White
+
+}
+
 MILL_TEMPLATE = '%s %s %i/%i\r'
 TIME_FMT_H = 'ETA: %Hh%Mm'
 TIME_FMT_M = 'ETA: %Mm%Ss'
@@ -111,13 +133,18 @@ class Bar(object):
 
         if disable_color:
             self.template = self.escape_ansi(self.template)
+        elif os.name != 'nt':
+            self.template = self.template.replace('\033[2m', '')
+            for k, v in COLOR_TABLE.items():
+                self.template = self.template.replace(k, v)
 
         self.template = self.template.strip('\n').strip('\r').rstrip(' ')
         if hide is None and self.isatty:
-            self.template = '\r' + self.template.strip('\r').rstrip(' ')
-            idx = self.template.find('{filled_chars}')
+            self.template = self.template.strip('\r').rstrip(' ')
+            idx = self.template.find('{empty_chars}')
             if idx >= 0:
-                self.template += (' ' * 4) + '\r' + self.template[0:idx + 14]
+                self.template += (' ' * 4) + '\r' + self.template[0:idx]
+            self.template = '\r' + self.template.strip('\r').rstrip(' ')
 
         if self.expected_size:
             self.calculate_expected()
