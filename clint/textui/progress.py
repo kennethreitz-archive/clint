@@ -18,8 +18,8 @@ import time
 
 STREAM = sys.stderr
 
-BAR_TEMPLATE = ('\033[0m\033[32m{label}\033[0m |{filled_chars}\033[38;5;240m{empty_chars}\033[0m| '
-                '\033[32m{percent}\033[0m{percent_spacer}\033[33m{progress}/{expected_text}{unit_label}\033[0m | '
+BAR_TEMPLATE = ('\033[0m\033[38;5;39m{label}\033[0m |{filled_chars}\033[38;5;240m{empty_chars}\033[0m| '
+                '\033[38;5;40m{percent}\033[0m{percent_spacer}\033[38;5;214m{progress}/{expected_text}{unit_label}\033[0m | '
                 '\033[38;5;243m{eta}\033[0m')
 MILL_TEMPLATE = '%s %s %i/%i\r'
 TIME_FMT_H = 'ETA: %Hh%Mm'
