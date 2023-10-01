@@ -1,6 +1,10 @@
 History
 -------
 
+0.5.2
++++++
+* Added new features (percent, bytes unit, unit label, coloured bar) at progressbar (thanks to @helviojunior)
+
 0.5.1
 +++++
 * Fix line width calculation in max_width when using coloured text (thanks to @wkentaro) 
